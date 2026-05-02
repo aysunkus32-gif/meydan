@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% block title %}@{{ profile_user.username }} — Meydan{% endblock %}
+{% block extra_css %}
+<style>
+.wrap{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:36px 20px 80px;}
+.profile-header{background:linear-gradient(135deg,var(--surface),var(--surface-2));border:1px solid var(--border);
+  border-radius:16px;padding:32px;margin-bottom:28px;animation:fadeUp .4s ease;position:relative;overflow:hidden;}
+.profile-header::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg,var(--green),var(--yellow),var(--red));}
+.profile-avatar{width:64px;height:64px;border-radius:50%;background:var(--accent);display:flex;
+  align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;
+  font-size:24px;color:#fff;margin-bottom:14px;box-shadow:0 0 20px rgba(139,92,246,.25);}
+.profile-name{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;letter-spacing:-1px;margin-bottom:4px;}
+.profile-meta{font-size:11px;color:var(--text-muted);margin-bottom:16px;}
+.profile-stats{display:flex;gap:20px;flex-wrap:wrap;}
+.pstat{text-align:center;}
+.pstat-n{font-family:'Syne',sans-serif;font-weight:700;font-size:22px;}
+.pstat-n.g{color:var(--green);}
+.pstat-n.r{color:var(--red);}
+.pstat-n.y{color:var(--yellow);}
+.pstat-n.p{color:var(--accent);}
+.pstat-l{font-size:9px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;margin-top:2px;}
+
+.tabs{display:flex;gap:4px;margin-bottom:24px;background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:4px;}
+.tab-btn{flex:1;padding:9px 16px;border-radius:8px;border:none;background:none;
+  font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;color:var(--text-muted);
+  transition:all .2s;letter-spacing:1px;}
+.tab-btn.active{background:var(--accent);color:#fff;}
+.tab-btn:hover:not(.active){background:var(--surface-2);color:var(--text-primary);}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+
+.tcard{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 20px;
+  margin-bottom:10px;transition:all .3s;position:relative;}
+.tcard:hover{background:var(--surface-2);border-color:var(--accent);}
+.tcard-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;line-height:1.4;margin-bottom:8px;}
+.tcard-title a{color:inherit;text-decoration:none;}
+.tcard-title a:hover{color:var(--accent);}
+.tcard-meta{display:flex;align-items:center;gap:10px;font-size:11px;color:var(--text-muted);flex-wrap:wrap;}
+.tstat{display:inline-flex;align-items:center;gap:4px;}
+.tdot{width:7px;height:7px;border-radius:50%;}
+.tdot.g{background:var(--green);}
+.tdot.r{background:var(--red);}
+.tdot.y{background:var(--yellow);}
+.tdate{font-size:10px;color:var(--text-dim);margin-left:auto;}
+
+.reply-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px;
+  margin-bottom:10px;transition:border-color .2s;}
+.reply-card:hover{border-color:var(--accent);}
+.reply-type{font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;padding:2px 8px;
+  border-radius:4px;display:inline-block;margin-bottom:6px;}
+.reply-type.cunku{color:var(--green);background:rgba(46,204,113,.12);}
+.reply-type.fakat{color:var(--red);background:rgba(231,76,60,.12);}
+.reply-type.lakin{color:var(--yellow);background:rgba(241,196,15,.12);}
+.reply-text{font-size:12px;line-height:1.6;color:var(--text-primary);margin-bottom:6px;}
+.reply-topic{font-size:10px;color:var(--text-muted);}
+.reply-topic a{color:var(--accent);text-decoration:none;}
+.reply-topic a:hover{text-decoration:underline;}
+.reply-meta{display:flex;align-items:center;gap:8px;font-size:10px;color:var(--text-dim);margin-top:6px;}
+.reply-score{font-size:11px;font-weight:600;}
+
+.empty{text-align:center;padding:50px 20px;color:var(--text-dim);font-size:12px;}
+.back-btn{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--text-muted);
+  background:none;border:none;cursor:pointer;font-family:'DM Mono',monospace;padding:6px 0;
+  transition:color .2s;text-decoration:none;margin-bottom:20px;}
+.back-btn:hover{color:var(--text-primary);}
+
+@media(max-width:600px){.wrap{padding:20px 14px 60px;}.profile-stats{gap:12px;}.pstat-n{font-size:18px;}}
+</style>
+{% endblock %}
+{% block content %}
+{% set type_lbl = {'cunku':'Çünkü','fakat':'Fakat','lakin':'Lakin'} %}
+<div class="wrap">
+  <a class="back-btn" href="/">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    Tüm Tartışmalar
+  </a>
+
+  <div class="profile-header">
+    <div class="profile-avatar">{{ profile_user.username[0]|upper }}</div>
+    <div class="profile-name">@{{ profile_user.username }}</div>
+    <div class="profile-meta">Kayıt: {{ profile_user.created_at[:10] }}{% if profile_user.is_admin %} · <span style="color:var(--accent);">Admin</span>{% endif %}</div>
+    <div class="profile-stats">
+      <div class="pstat"><div class="pstat-n p">{{ stats.topic_count }}</div><div class="pstat-l">Başlık</div></div>
+      <div class="pstat"><div class="pstat-n" style="color:var(--text-primary);">{{ stats.reply_count }}</div><div class="pstat-l">Cevap</div></div>
+      <div class="pstat"><div class="pstat-n g">{{ stats.cunku_count }}</div><div class="pstat-l">Çünkü</div></div>
+      <div class="pstat"><div class="pstat-n r">{{ stats.fakat_count }}</div><div class="pstat-l">Fakat</div></div>
+      <div class="pstat"><div class="pstat-n y">{{ stats.lakin_count }}</div><div class="pstat-l">Lakin</div></div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('topics',this)">📋 Başlıklar</button>
+    <button class="tab-btn" onclick="switchTab('replies',this)">💬 Cevaplar</button>
+  </div>
+
+  <div class="tab-content active" id="tab-topics">
+    {% if topics %}
+      {% for t in topics %}
+      {% set score = t.up - t.down %}
+      <div class="tcard">
+        <div class="tcard-title"><a href="/topic/{{ t.id }}">{{ t.title }}</a></div>
+        <div class="tcard-meta">
+          <span class="tstat"><span class="tdot g"></span>{{ t.cunku_count }} Çünkü</span>
+          <span class="tstat"><span class="tdot r"></span>{{ t.fakat_count }} Fakat</span>
+          <span class="tstat"><span class="tdot y"></span>{{ t.lakin_count }} Lakin</span>
+          <span class="tdate">{{ t.created_at[:10] }}</span>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty">Henüz başlık oluşturulmamış.</div>
+    {% endif %}
+  </div>
+
+  <div class="tab-content" id="tab-replies">
+    {% if replies %}
+      {% for r in replies %}
+      {% set rscore = r.up - r.down %}
+      <div class="reply-card">
+        <span class="reply-type {{ r.type }}">{{ type_lbl[r.type] }}</span>
+        <div class="reply-text">{{ r.text }}</div>
+        <div class="reply-topic">↳ <a href="/topic/{{ r.topic_id }}">{{ r.topic_title }}</a></div>
+        <div class="reply-meta">
+          <span class="reply-score {% if rscore > 0 %}pos{% elif rscore < 0 %}neg{% endif %}"
+            style="color:{% if rscore > 0 %}var(--green){% elif rscore < 0 %}var(--red){% else %}var(--text-dim){% endif %};">
+            👍 {{ r.up }} · 👎 {{ r.down }}
+          </span>
+          <span style="margin-left:auto;">{{ r.created_at[:16] }}</span>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty">Henüz cevap yazılmamış.</div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+function switchTab(name, btn){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+{% endblock %}

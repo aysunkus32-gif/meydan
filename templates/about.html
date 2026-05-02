@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Hakkında — Meydan{% endblock %}
+{% block extra_css %}
+<style>
+.wrap{position:relative;z-index:1;max-width:720px;margin:0 auto;padding:36px 20px 80px;}
+.page-title{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;letter-spacing:-1.5px;
+  margin-bottom:8px;background:linear-gradient(135deg,var(--text-primary),var(--text-muted));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.page-sub{font-size:12px;color:var(--text-dim);margin-bottom:40px;}
+.content-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  padding:28px 32px;margin-bottom:20px;animation:fadeUp .5s ease;}
+.content-card:nth-child(2){animation-delay:.1s;}
+.content-card:nth-child(3){animation-delay:.2s;}
+.content-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:14px;
+  color:var(--accent);}
+.content-body{font-size:13px;line-height:1.9;color:var(--text-muted);white-space:pre-wrap;}
+.back-btn{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--text-muted);
+  background:none;border:none;cursor:pointer;font-family:'DM Mono',monospace;padding:6px 0;
+  transition:color .2s;text-decoration:none;margin-bottom:20px;}
+.back-btn:hover{color:var(--text-primary);}
+</style>
+{% endblock %}
+{% block content %}
+<div class="wrap">
+  <a class="back-btn" href="/">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    Ana Sayfa
+  </a>
+  <div class="page-title">ℹ️ Hakkında</div>
+  <div class="page-sub">Meydan platformu hakkında bilgiler</div>
+
+  {% for item in items %}
+  <div class="content-card">
+    <div class="content-title">{{ item.title }}</div>
+    <div class="content-body">{{ item.body }}</div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

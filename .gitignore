@@ -1,0 +1,5 @@
+﻿__pycache__/
+*.pyc
+meydan.db
+catisma.db
+catisma_data/

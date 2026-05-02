@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kayıt — Meydan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0b0d;--surface:#13151a;--surface-2:#1a1d24;--border:#2a2e38;--text-primary:#e8e6e1;--text-muted:#6b6f7a;--text-dim:#444854;--accent:#8b5cf6;--red:#e74c3c;--green:#2ecc71;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text-primary);font-family:'DM Mono',monospace;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 30% 40%,rgba(139,92,246,.06)0%,transparent 60%),radial-gradient(ellipse at 70% 70%,rgba(46,204,113,.04)0%,transparent 60%);}
+.card{position:relative;z-index:1;width:100%;max-width:460px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px 36px;animation:up .5s ease;}
+.brand{font-family:'Syne',sans-serif;font-weight:800;font-size:28px;letter-spacing:-1.5px;text-align:center;margin-bottom:4px;background:linear-gradient(135deg,#e8e6e1,#6b6f7a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.tagline{text-align:center;font-size:11px;color:var(--text-dim);margin-bottom:32px;letter-spacing:1px;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;}
+.field input{width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:13px 16px;color:var(--text-primary);font-family:'DM Mono',monospace;font-size:14px;outline:none;transition:border-color .2s;}
+.field input:focus{border-color:var(--accent);}
+.field input::placeholder{color:var(--text-dim);}
+.hint{font-size:10px;color:var(--text-dim);margin-top:5px;}
+.btn-primary{width:100%;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-family:'DM Mono',monospace;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;letter-spacing:1px;margin-top:8px;}
+.btn-primary:hover{opacity:.88;transform:translateY(-1px);}
+.error{background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.3);border-radius:8px;padding:11px 14px;font-size:12px;color:var(--red);margin-bottom:16px;}
+.alt{text-align:center;margin-top:20px;font-size:12px;color:var(--text-dim);}
+.alt a{color:var(--accent);text-decoration:none;}
+.alt a:hover{text-decoration:underline;}
+
+/* Üyelik Sözleşmesi */
+.agreement-box{margin:18px 0 14px;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.agreement-header{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);padding:10px 16px;border-bottom:1px solid var(--border);cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+.agreement-header:hover{color:var(--accent);}
+.agreement-body{max-height:220px;overflow-y:auto;padding:16px;font-size:11px;line-height:1.8;color:var(--text-muted);display:none;}
+.agreement-body.open{display:block;}
+.agreement-body h3{font-size:12px;color:var(--text-primary);margin:12px 0 4px;font-family:'Syne',sans-serif;}
+.agreement-body h3:first-child{margin-top:0;}
+.agreement-body p{margin-bottom:8px;}
+.agreement-body ul{margin:4px 0 8px 16px;}
+.agreement-body li{margin-bottom:4px;}
+
+.agree-row{display:flex;align-items:flex-start;gap:10px;margin-top:12px;}
+.agree-row input[type="checkbox"]{margin-top:3px;width:16px;height:16px;accent-color:var(--accent);cursor:pointer;}
+.agree-row label{font-size:11px;color:var(--text-muted);cursor:pointer;line-height:1.5;}
+.agree-row label a{color:var(--accent);text-decoration:none;}
+
+@keyframes up{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="brand">Meydan</div>
+  <div class="tagline">Yeni Hesap Oluştur</div>
+  {% if error %}<div class="error">{{ error }}</div>{% endif %}
+  <form method="POST">
+    <div class="field">
+      <label>Kullanıcı Adı</label>
+      <input type="text" name="username" placeholder="en az 3 karakter" autocomplete="username" required autofocus>
+      <div class="hint">Herkese görünür olacak</div>
+    </div>
+    <div class="field">
+      <label>E-posta</label>
+      <input type="email" name="email" placeholder="ornek@mail.com" autocomplete="email" required>
+      <div class="hint">Şifre sıfırlama ve bildirimler için kullanılacak</div>
+    </div>
+    <div class="field">
+      <label>Şifre</label>
+      <input type="password" name="password" placeholder="en az 6 karakter" autocomplete="new-password" required>
+    </div>
+    <div class="field">
+      <label>Şifre Tekrar</label>
+      <input type="password" name="confirm" placeholder="şifreyi tekrarla" autocomplete="new-password" required>
+    </div>
+
+    <!-- Üyelik Sözleşmesi -->
+    <div class="agreement-box">
+      <div class="agreement-header" onclick="toggleAgreement()">
+        <span>📜 Üyelik ve Kullanıcı Sözleşmesi</span>
+        <span id="agArrow">▸</span>
+      </div>
+      <div class="agreement-body" id="agBody">
+        <h3>1. Taraflar ve Konu</h3>
+        <p>Bu sözleşme, Meydan (bundan böyle "Platform" olarak anılacaktır) ile Platform'a üye olan kişi (bundan böyle "Kullanıcı" olarak anılacaktır) arasında, Kullanıcı'nın Platform'un sunduğu hizmetlerden yararlanmasına ilişkin şartları ve kuralları belirlemek amacıyla akdedilmiştir. Kullanıcı, Platform'a üye olarak bu sözleşmenin tamamını okuduğunu, anladığını ve onayladığını kabul eder.</p>
+
+        <h3>2. Tanımlar</h3>
+        <p><strong>Platform:</strong> Kullanıcıların başlık/önerme oluşturabildiği ve bu başlıklara onay, itiraz veya şart bildirebildiği dijital tartışma ortamı.</p>
+        <p><strong>Kullanıcı:</strong> Platform'a üye olarak içerik üreten ve etkileşimde bulunan gerçek veya tüzel kişi.</p>
+        <p><strong>Başlık (Önerme):</strong> Bir Kullanıcı tarafından tartışıma açılan ana fikir, iddia veya konu.</p>
+        <p><strong>Onay:</strong> Bir Başlık'taki fikre tamamen katılımı ifade eden etkileşim türü.</p>
+        <p><strong>İtiraz:</strong> Bir Başlık'taki fikre katılmamayı ve karşıt argüman sunmayı ifade eden etkileşim türü.</p>
+        <p><strong>Şart:</strong> Bir Başlık'taki fikre ancak belirli koşulların sağlanması veya belirli istisnaların kabul edilmesi durumunda katılmayı ifade eden etkileşim türü.</p>
+
+        <h3>3. Üyelik Şartları ve Hesap Güvenliği</h3>
+        <p>3.1. Platform'a üye olabilmek için 18 yaşını doldurmuş olmak gereklidir.</p>
+        <p>3.2. Kullanıcı, üyelik aşamasında verdiği bilgilerin doğru, güncel ve eksiksiz olduğunu beyan eder. Yanlış beyanlardan doğacak tüm hukuki ve cezai sorumluluk Kullanıcı'ya aittir.</p>
+        <p>3.3. Hesabın güvenliği ve şifrenin gizliliği tamamen Kullanıcı'nın sorumluluğundadır. Hesap üzerinden gerçekleştirilen tüm eylemler Kullanıcı tarafından yapılmış sayılır.</p>
+
+        <h3>4. Platform Kullanım Kuralları ve İçerik Politikası</h3>
+        <p>4.1. Kullanıcılar; Başlık oluştururken, Onay, İtiraz veya Şart bildirirken argümanlarını mantıksal bir çerçevede ve saygı kuralları içerisinde sunmakla yükümlüdür.</p>
+        <p>4.2. Yasaklı İçerikler:</p>
+        <ul>
+          <li>Türkiye Cumhuriyeti yasalarına, anayasasına ve uluslararası sözleşmelere aykırı içerikler.</li>
+          <li>Kişi veya kurumları hedef alan hakaret, küfür, iftira, tehdit veya şantaj içeren mesajlar.</li>
+          <li>Irk, din, dil, cinsiyet, cinsel yönelim vb. nedenlerle ayrımcılık yapan veya nefret söylemi içeren ifadeler.</li>
+          <li>Telif haklarını ve üçüncü şahısların fikri mülkiyet haklarını ihlal eden içerikler.</li>
+          <li>Spam, reklam, oltalama (phishing) amaçlı linkler veya yazılar.</li>
+        </ul>
+        <p>4.3. Platform yönetimi, madde 4.2'ye aykırı bulduğu içerikleri önceden haber vermeksizin silme, gizleme veya düzenleme hakkını saklı tutar.</p>
+
+        <h3>5. Sorumlulukların Sınırlandırılması</h3>
+        <p>5.1. Platform, yalnızca Kullanıcıların fikirlerini beyan edebileceği bir yer sağlayıcı konumundadır. 5651 sayılı Kanun uyarınca Platform yönetimi, Kullanıcılar tarafından oluşturulan içerikleri kontrol etmekle yükümlü değildir.</p>
+        <p>5.2. Platform'da paylaşılan tüm içeriklerin hukuki ve cezai sorumluluğu doğrudan içeriği oluşturan Kullanıcı'ya aittir.</p>
+
+        <h3>6. Fikri Mülkiyet Hakları</h3>
+        <p>6.1. Kullanıcılar, Platform'da ürettikleri özgün içeriklerin telif hakkına sahiptir. Ancak Kullanıcı, Platform'a içerik yükleyerek, bu içeriğin Platform tarafından bedelsiz, süresiz ve dünya çapında yayınlanması için münhasır olmayan bir lisans vermiş sayılır.</p>
+
+        <h3>7. Gizlilik ve Kişisel Veriler (KVKK)</h3>
+        <p>7.1. Platform, Kullanıcı'ya ait kişisel verileri 6698 Sayılı Kişisel Verilerin Korunması Kanunu (KVKK) hükümlerine uygun olarak işler ve korur.</p>
+
+        <h3>8. Sözleşmenin Feshi ve Hesap Kapatma</h3>
+        <p>8.1. Kullanıcı, dilediği zaman hesap ayarları üzerinden üyeliğini sonlandırabilir.</p>
+        <p>8.2. Platform, Kullanıcı'nın bu sözleşme kurallarını ihlal etmesi durumunda hesabı geçici olarak askıya alabilir veya kalıcı olarak silebilir.</p>
+        <p>8.3. Hesabın kapatılması, Kullanıcı'nın geçmişte paylaşıldığı içeriklerin otomatik olarak silineceği anlamına gelmez. Platform, anonimleştirerek bu içerikleri tutma hakkını saklı tutar.</p>
+
+        <h3>9. Değişiklikler ve Yürürlük</h3>
+        <p>9.1. Platform yönetimi, yasal zorunluluklar veya platformun geliştirilmesi amacıyla bu sözleşme maddelerinde tek taraflı olarak değişiklik yapma hakkına sahiptir.</p>
+        <p>9.2. Kullanıcı, kayıt formunu doldurup "Üyelik Sözleşmesini Kabul Ediyorum" butonuna tıkladığı veya Platform'u kullanmaya başladığı andan itibaren bu sözleşmenin tüm hükümlerini kabul etmiş sayılır.</p>
+      </div>
+    </div>
+
+    <div class="agree-row">
+      <input type="checkbox" name="agreed" id="agreed" required>
+      <label for="agreed"><a href="javascript:void(0)" onclick="toggleAgreement()">Üyelik Sözleşmesi</a>'ni okudum ve kabul ediyorum.</label>
+    </div>
+
+    <button class="btn-primary" type="submit">Kayıt Ol</button>
+  </form>
+  <div class="alt">Hesabın var mı? <a href="/login">Giriş Yap</a></div>
+</div>
+
+<script>
+function toggleAgreement(){
+  const body=document.getElementById('agBody');
+  const arrow=document.getElementById('agArrow');
+  body.classList.toggle('open');
+  arrow.textContent=body.classList.contains('open')?'▾':'▸';
+}
+</script>
+</body>
+</html>

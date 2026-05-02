@@ -1,0 +1,350 @@
+{% extends 'base.html' %}
+{% block title %}PikPik — Meydan{% endblock %}
+{% block extra_css %}
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{overflow:hidden;}
+
+/* UST ARAÇ ÇUBUĞU */
+.pik-toolbar{position:fixed;top:56px;left:0;right:0;z-index:50;
+  background:var(--surface);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;padding:8px 16px;flex-wrap:wrap;}
+.pik-balance{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--accent);
+  display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.pik-balance small{font-size:10px;font-weight:400;color:var(--text-muted);letter-spacing:1px;}
+.color-palette{display:flex;gap:3px;flex-wrap:wrap;align-items:center;}
+.cs{width:26px;height:26px;border-radius:5px;cursor:pointer;border:2px solid transparent;
+  transition:all .15s;flex-shrink:0;}
+.cs:hover{transform:scale(1.2);z-index:2;}
+.cs.active{border-color:var(--text-primary);box-shadow:0 0 8px rgba(255,255,255,.4);}
+.cs-eraser{background:repeating-conic-gradient(#ccc 0% 25%, #fff 0% 50%) 50%/12px 12px;
+  border:2px solid var(--border);}
+.cc{width:26px;height:26px;border-radius:5px;cursor:pointer;border:1px solid var(--border);
+  padding:0;overflow:hidden;flex-shrink:0;}
+.cc input{width:36px;height:36px;border:none;cursor:pointer;margin:-5px;}
+.pik-coord{font-size:10px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-left:auto;flex-shrink:0;}
+.pik-hint{font-size:9px;color:var(--text-dim);flex-shrink:0;}
+
+/* TUVAL ALANI */
+.pik-canvas-area{position:fixed;top:110px;left:0;right:0;bottom:0;
+  overflow:auto;background:var(--bg);cursor:crosshair;}
+.pik-canvas-area.dragging{cursor:grabbing;}
+.pik-canvas-area.erasing{cursor:not-allowed;}
+
+/* CANVAS */
+#pikCanvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges;}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:10px 20px;font-size:12px;color:var(--text-primary);z-index:200;
+  box-shadow:0 8px 30px rgba(0,0,0,.4);display:none;animation:fadeUp .2s ease;}
+.toast.show{display:block;}
+.toast.ok{border-color:var(--green-border);color:var(--green);}
+.toast.err{border-color:var(--red-border);color:var(--red);}
+
+/* ZOOM KONTROL */
+.zoom-controls{position:fixed;bottom:20px;right:20px;z-index:60;
+  display:flex;flex-direction:column;gap:4px;}
+.zoom-btn{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);
+  background:var(--surface);color:var(--text-primary);font-size:18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .2s;
+  font-family:'DM Mono',monospace;}
+.zoom-btn:hover{border-color:var(--accent);color:var(--accent);}
+.zoom-level{font-size:10px;color:var(--text-dim);text-align:center;font-family:'DM Mono',monospace;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- ARAÇ ÇUBUĞU -->
+<div class="pik-toolbar">
+  <div class="pik-balance">
+    ◆ <span id="pikBal">{{ pik_balance }}</span>
+    <small>pik</small>
+  </div>
+  <div class="color-palette" id="palette"></div>
+  <div class="pik-coord" id="coordInfo">0, 0</div>
+  <div class="pik-hint">Tıkla: boya | Silgi: kendi pikselini sil</div>
+</div>
+
+<!-- TUVAL -->
+<div class="pik-canvas-area" id="canvasArea">
+  <canvas id="pikCanvas"></canvas>
+</div>
+
+<!-- ZOOM -->
+<div class="zoom-controls">
+  <button class="zoom-btn" onclick="zoomIn()">+</button>
+  <div class="zoom-level" id="zoomLevel">8px</div>
+  <button class="zoom-btn" onclick="zoomOut()">−</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const GRID = 100;
+let cellSize = Math.floor((window.innerWidth - 40) / GRID);
+if (cellSize < 4) cellSize = 4;
+if (cellSize > 20) cellSize = 20;
+
+let selectedColor = '#e74c3c';
+let isEraser = false;
+let pixels = {};
+let pikBalance = {{ pik_balance }};
+let isDragging = false;
+let dragStart = {x:0,y:0};
+let scrollStart = {x:0,y:0};
+let hasDragged = false;
+
+const canvas = document.getElementById('pikCanvas');
+const ctx = canvas.getContext('2d');
+const area = document.getElementById('canvasArea');
+
+// Renk paleti
+const COLORS = [
+  '#000000','#ffffff','#e74c3c','#e67e22','#f1c40f','#2ecc71','#1abc9c',
+  '#3498db','#9b59b6','#34495e','#e84393','#fd79a8','#00cec9','#6c5ce7',
+  '#d63031','#00b894','#0984e3','#fdcb6e','#fab1a0','#636e72',
+  '#2d3436','#dfe6e9','#b2bec3','#ffeaa0','#55efc4','#74b9ff','#a29bfe',
+  '#ff7675','#fd79a8','#e17055','#00b894','#0984e3','#6c5ce7'
+];
+
+const palette = document.getElementById('palette');
+
+// Silgi
+const eraser = document.createElement('div');
+eraser.className = 'cs cs-eraser';
+eraser.title = 'Silgi (kendi pikselini sil)';
+eraser.onclick = () => {
+  isEraser = true;
+  document.querySelectorAll('.cs').forEach(s => s.classList.remove('active'));
+  eraser.classList.add('active');
+};
+palette.appendChild(eraser);
+
+// Renkler
+COLORS.forEach(c => {
+  const sw = document.createElement('div');
+  sw.className = 'cs';
+  sw.style.background = c;
+  sw.onclick = () => {
+    isEraser = false;
+    selectedColor = c;
+    document.querySelectorAll('.cs').forEach(s => s.classList.remove('active'));
+    eraser.classList.remove('active');
+    sw.classList.add('active');
+  };
+  palette.appendChild(sw);
+});
+
+// Ozel renk
+const cc = document.createElement('div');
+cc.className = 'cc';
+cc.innerHTML = '<input type="color" value="#ff00ff" oninput="pickCustom(this.value)">';
+palette.appendChild(cc);
+
+function pickCustom(c) {
+  isEraser = false;
+  selectedColor = c;
+  document.querySelectorAll('.cs').forEach(s => s.classList.remove('active'));
+  eraser.classList.remove('active');
+}
+
+// Varsayilan renk sec
+palette.querySelectorAll('.cs:not(.cs-eraser)')[2].classList.add('active');
+
+// Zoom
+function resizeCanvas() {
+  canvas.width = GRID * cellSize;
+  canvas.height = GRID * cellSize;
+  renderGrid();
+}
+function zoomIn() {
+  cellSize = Math.min(32, cellSize + 2);
+  document.getElementById('zoomLevel').textContent = cellSize + 'px';
+  resizeCanvas();
+}
+function zoomOut() {
+  cellSize = Math.max(2, cellSize - 2);
+  document.getElementById('zoomLevel').textContent = cellSize + 'px';
+  resizeCanvas();
+}
+
+// Grid ciz
+function renderGrid() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Arka plan
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Izgara cizgileri (sadece buyuk hucrelerde)
+  if (cellSize >= 4) {
+    ctx.strokeStyle = 'rgba(42,46,56,.5)';
+    ctx.lineWidth = 0.5;
+    for (let i = 0; i <= GRID; i++) {
+      ctx.beginPath();
+      ctx.moveTo(i * cellSize, 0);
+      ctx.lineTo(i * cellSize, canvas.height);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(0, i * cellSize);
+      ctx.lineTo(canvas.width, i * cellSize);
+      ctx.stroke();
+    }
+  }
+
+  // Renkli pikseller
+  Object.values(pixels).forEach(p => {
+    ctx.fillStyle = p.color;
+    const gap = cellSize >= 6 ? 0.5 : 0;
+    const radius = cellSize >= 6 ? 1 : 0;
+    const x = p.x * cellSize + gap;
+    const y = p.y * cellSize + gap;
+    const s = cellSize - gap * 2;
+    if (radius > 0) {
+      ctx.beginPath();
+      ctx.roundRect(x, y, s, s, radius);
+      ctx.fill();
+    } else {
+      ctx.fillRect(x, y, s, s);
+    }
+  });
+}
+
+// Pikselleri yukle
+async function loadPixels() {
+  try {
+    const res = await fetch('/pikpik/api/pixels');
+    const data = await res.json();
+    pixels = {};
+    data.forEach(p => { pixels[p.x + ',' + p.y] = p; });
+    renderGrid();
+  } catch(e) {
+    console.error('Piksel yukleme hatasi:', e);
+  }
+}
+
+// Mouse koordinati
+function getGridPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  const x = Math.floor((e.clientX - rect.left) / cellSize);
+  const y = Math.floor((e.clientY - rect.top) / cellSize);
+  return {x: Math.max(0, Math.min(GRID-1, x)), y: Math.max(0, Math.min(GRID-1, y))};
+}
+
+// Hover efekti
+canvas.addEventListener('mousemove', function(e) {
+  const pos = getGridPos(e);
+  document.getElementById('coordInfo').textContent = pos.x + ', ' + pos.y;
+
+  // Boyama (sürüklerken)
+  if (e.buttons === 1 && !isDragging) {
+    placePixel(pos.x, pos.y);
+  }
+});
+
+// Tıklama
+canvas.addEventListener('mousedown', function(e) {
+  if (e.button === 0) {
+    const pos = getGridPos(e);
+    placePixel(pos.x, pos.y);
+  }
+});
+
+// Sag tikla → surukleme ile kaydirma
+canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+// Orta tikla surukleme
+area.addEventListener('mousedown', function(e) {
+  if (e.button === 1 || (e.button === 0 && e.shiftKey)) {
+    isDragging = true;
+    hasDragged = false;
+    dragStart = {x: e.clientX, y: e.clientY};
+    scrollStart = {x: area.scrollLeft, y: area.scrollTop};
+    area.classList.add('dragging');
+    e.preventDefault();
+  }
+});
+
+area.addEventListener('mousemove', function(e) {
+  if (isDragging) {
+    area.scrollLeft = scrollStart.x - (e.clientX - dragStart.x);
+    area.scrollTop = scrollStart.y - (e.clientY - dragStart.y);
+    hasDragged = true;
+  }
+});
+
+area.addEventListener('mouseup', function() {
+  isDragging = false;
+  area.classList.remove('dragging');
+});
+
+// Piksel yerlestir/sil
+async function placePixel(x, y) {
+  const key = x + ',' + y;
+  const existing = pixels[key];
+
+  const payload = {x, y, color: isEraser ? '#000000' : selectedColor};
+
+  const res = await fetch('/pikpik/place', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json();
+
+  if (data.ok) {
+    pikBalance = data.balance;
+    document.getElementById('pikBal').textContent = pikBalance;
+    if (data.action === 'placed') {
+      showToast('−1◆ piksel yerleştirildi', 'ok');
+    } else {
+      showToast('+1◆ piksel iade', 'ok');
+    }
+    await loadPixels();
+  } else {
+    showToast(data.error || 'Hata', 'err');
+  }
+}
+
+// Toast
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => { t.className = 'toast'; }, 2000);
+}
+
+// Klavye kisayollari
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'e' || e.key === 'E') {
+    isEraser = true;
+    document.querySelectorAll('.cs').forEach(s => s.classList.remove('active'));
+    eraser.classList.add('active');
+  }
+  if (e.key === '+' || e.key === '=') zoomIn();
+  if (e.key === '-') zoomOut();
+  if (e.key === 'Escape') {
+    isEraser = false;
+    document.querySelectorAll('.cs').forEach(s => s.classList.remove('active'));
+    palette.querySelectorAll('.cs:not(.cs-eraser)')[2].classList.add('active');
+  }
+});
+
+// Periyodik guncelleme
+setInterval(loadPixels, 5000);
+
+// Ilk yukleme
+resizeCanvas();
+loadPixels();
+
+// Baslangic scroll ortala
+setTimeout(() => {
+  area.scrollLeft = (canvas.width - area.clientWidth) / 2;
+  area.scrollTop = (canvas.height - area.clientHeight) / 2;
+}, 100);
+</script>
+{% endblock %}

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Giriş — Meydan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0b0d;--surface:#13151a;--surface-2:#1a1d24;--border:#2a2e38;--text-primary:#e8e6e1;--text-muted:#6b6f7a;--text-dim:#444854;--accent:#8b5cf6;--red:#e74c3c;--green:#2ecc71;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text-primary);font-family:'DM Mono',monospace;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 30% 40%,rgba(139,92,246,.06)0%,transparent 60%),radial-gradient(ellipse at 70% 70%,rgba(46,204,113,.04)0%,transparent 60%);}
+.card{position:relative;z-index:1;width:100%;max-width:400px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px 36px;animation:up .5s ease;}
+.brand{font-family:'Syne',sans-serif;font-weight:800;font-size:28px;letter-spacing:-1.5px;text-align:center;margin-bottom:4px;background:linear-gradient(135deg,#e8e6e1,#6b6f7a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.tagline{text-align:center;font-size:11px;color:var(--text-dim);margin-bottom:32px;letter-spacing:1px;}
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;}
+.field input{width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:13px 16px;color:var(--text-primary);font-family:'DM Mono',monospace;font-size:14px;outline:none;transition:border-color .2s;}
+.field input:focus{border-color:var(--accent);}
+.field input::placeholder{color:var(--text-dim);}
+.btn-primary{width:100%;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-family:'DM Mono',monospace;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;letter-spacing:1px;margin-top:8px;}
+.btn-primary:hover{opacity:.88;transform:translateY(-1px);}
+.error{background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.3);border-radius:8px;padding:11px 14px;font-size:12px;color:var(--red);margin-bottom:16px;}
+.alt{text-align:center;margin-top:20px;font-size:12px;color:var(--text-dim);}
+.alt a{color:var(--accent);text-decoration:none;}
+.alt a:hover{text-decoration:underline;}
+.forgot{text-align:center;margin-top:12px;}
+.forgot a{font-size:11px;color:var(--text-dim);text-decoration:none;transition:color .2s;}
+.forgot a:hover{color:var(--accent);}
+@keyframes up{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="brand">Meydan</div>
+  <div class="tagline">Fikirler Çarpışsın</div>
+  {% if error %}<div class="error">{{ error }}</div>{% endif %}
+  <form method="POST">
+    <div class="field">
+      <label>Kullanıcı Adı</label>
+      <input type="text" name="username" placeholder="kullanici_adi" autocomplete="username" required autofocus>
+    </div>
+    <div class="field">
+      <label>Şifre</label>
+      <input type="password" name="password" placeholder="••••••••" autocomplete="current-password" required>
+    </div>
+    <button class="btn-primary" type="submit">Giriş Yap</button>
+  </form>
+  <div class="forgot"><a href="/forgot-password">🔑 Şifremi Unuttum</a></div>
+  <div class="alt">Hesabın yok mu? <a href="/register">Kayıt Ol</a></div>
+</div>
+</body>
+</html>

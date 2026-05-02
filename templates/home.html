@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+{% block title %}Tartışmalar — Meydan{% endblock %}
+{% block extra_css %}
+<style>
+.wrap{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:36px 20px 80px;}
+.hero{text-align:center;margin-bottom:40px;animation:fadeUp .6s ease;}
+.hero h1{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(28px,5vw,48px);
+  letter-spacing:-2px;line-height:1.05;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text-primary),var(--text-muted));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero p{font-size:12px;color:var(--text-muted);max-width:420px;margin:0 auto;line-height:1.8;}
+.legend{display:flex;justify-content:center;gap:20px;margin-bottom:32px;flex-wrap:wrap;animation:fadeUp .7s ease .1s both;}
+.legend-item{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text-muted);}
+.ldot{width:9px;height:9px;border-radius:50%;}
+.ldot.g{background:var(--green);box-shadow:0 0 6px var(--green-glow);}
+.ldot.r{background:var(--red);box-shadow:0 0 6px var(--red-glow);}
+.ldot.y{background:var(--yellow);box-shadow:0 0 6px var(--yellow-glow);}
+
+.admin-alert{display:flex;align-items:center;gap:10px;background:rgba(241,196,15,.08);
+  border:1px solid rgba(241,196,15,.3);border-radius:12px;padding:12px 18px;
+  margin-bottom:20px;font-size:12px;color:var(--yellow);text-decoration:none;transition:all .2s;}
+.admin-alert:hover{background:rgba(241,196,15,.14);}
+.admin-alert span{margin-left:auto;font-size:10px;opacity:.7;}
+
+.new-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  padding:24px;margin-bottom:32px;animation:fadeUp .6s ease .1s both;transition:border-color .3s;}
+.new-box:focus-within{border-color:var(--accent);}
+.new-box label{display:block;font-size:10px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--text-muted);margin-bottom:12px;}
+.new-row{display:flex;gap:10px;}
+.new-input{flex:1;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;
+  padding:13px 16px;color:var(--text-primary);font-family:'Syne',sans-serif;font-size:15px;
+  font-weight:600;outline:none;transition:border-color .2s;}
+.new-input::placeholder{color:var(--text-dim);}
+.new-input:focus{border-color:var(--accent);}
+.new-btn{padding:13px 24px;background:var(--accent);color:#fff;border:none;border-radius:10px;
+  font-family:'DM Mono',monospace;font-size:11px;font-weight:500;cursor:pointer;
+  transition:all .2s;white-space:nowrap;letter-spacing:1px;}
+.new-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(139,92,246,.35);}
+.pending-hint{font-size:10px;color:var(--text-dim);margin-top:8px;}
+
+.topics{display:flex;flex-direction:column;gap:10px;animation:fadeUp .6s ease .2s both;}
+.tcard{background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:18px 20px;transition:all .3s;position:relative;overflow:hidden;display:block;
+  text-decoration:none;color:inherit;}
+.tcard:hover{background:var(--surface-2);border-color:var(--accent);transform:translateX(5px);}
+.tcard::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;
+  background:var(--accent);opacity:0;transition:opacity .3s;}
+.tcard:hover::before{opacity:1;}
+.tcard.status-pending{opacity:.7;border-style:dashed;}
+.tcard.status-rejected{opacity:.5;border-color:var(--red-border);}
+.status-badge{display:inline-block;font-size:9px;letter-spacing:2px;text-transform:uppercase;
+  padding:2px 8px;border-radius:4px;margin-bottom:6px;}
+.status-badge.pending{background:rgba(241,196,15,.15);color:var(--yellow);}
+.status-badge.rejected{background:rgba(231,76,60,.15);color:var(--red);}
+.tcard-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;line-height:1.4;margin-bottom:10px;}
+.tcard-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.tstat{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--text-muted);}
+.tdot{width:7px;height:7px;border-radius:50%;}
+.tdot.g{background:var(--green);}
+.tdot.r{background:var(--red);}
+.tdot.y{background:var(--yellow);}
+.tdate{font-size:10px;color:var(--text-dim);margin-left:auto;}
+.tauthor{font-size:10px;color:var(--text-dim);}
+
+.vote-row{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;
+  border-top:1px solid var(--border);}
+.vote-btn{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;
+  border-radius:6px;border:1px solid var(--border);background:transparent;
+  font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;
+  color:var(--text-dim);transition:all .2s;}
+.vote-btn.up:hover,.vote-btn.up.active{border-color:var(--green);color:var(--green);background:var(--green-bg);}
+.vote-btn.down:hover,.vote-btn.down.active{border-color:var(--red);color:var(--red);background:var(--red-bg);}
+.vote-score{font-size:12px;font-weight:600;color:var(--text-muted);min-width:24px;text-align:center;}
+.vote-score.pos{color:var(--green);}
+.vote-score.neg{color:var(--red);}
+
+.flag-chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;}
+.flag-chip{font-size:9px;letter-spacing:1px;padding:2px 7px;border-radius:4px;
+  background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.25);
+  color:var(--red);font-family:'DM Mono',monospace;}
+
+.tdel{position:absolute;top:12px;right:12px;background:none;border:none;
+  color:var(--text-dim);cursor:pointer;font-size:18px;padding:3px 8px;
+  border-radius:6px;transition:all .2s;opacity:0;line-height:1;}
+.tcard:hover .tdel{opacity:1;}
+.tdel:hover{color:var(--red);background:var(--red-bg);}
+.empty{text-align:center;padding:70px 20px;color:var(--text-dim);animation:fadeUp .8s ease .3s both;}
+.empty-icon{font-size:40px;margin-bottom:14px;opacity:.3;}
+.empty p{font-size:12px;line-height:1.9;}
+@media(max-width:600px){.wrap{padding:24px 14px 60px;}.new-row{flex-direction:column;}.new-btn{padding:12px;}}
+</style>
+{% endblock %}
+{% block content %}
+<div class="wrap">
+  <div class="hero">
+    <h1>Fikirler<br>Çarpışsın</h1>
+    <p>Bir iddia at, dallara ayır. Çünkü ile destekle, Fakat ile itiraz et, Lakin ile koşullu katıl.</p>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><div class="ldot g"></div>Çünkü — Destek</div>
+    <div class="legend-item"><div class="ldot r"></div>Fakat — İtiraz</div>
+    <div class="legend-item"><div class="ldot y"></div>Lakin — Koşullu</div>
+  </div>
+
+  {% if session.is_admin and pending_count > 0 %}
+  <a class="admin-alert" href="/admin">
+    ⚠️ <strong>{{ pending_count }}</strong> tartışma onay bekliyor
+    <span>Admin Paneli →</span>
+  </a>
+  {% endif %}
+
+  <div class="new-box">
+    <label>Yeni Tartışma Başlat</label>
+    <form class="new-row" method="POST" action="/topic/new">
+      <input class="new-input" name="title" placeholder="Bir iddia yaz... örn: Uzaktan çalışma daha verimlidir." required>
+      <button class="new-btn" type="submit">Başlat</button>
+    </form>
+    {% if not session.is_admin %}
+    <div class="pending-hint">⏳ Tartışmanız admin onayından geçtikten sonra yayımlanır.</div>
+    {% endif %}
+  </div>
+
+  {% if topics %}
+  <div class="topics">
+    {% for t in topics %}
+    {% set score = t.up - t.down %}
+    <div class="tcard {% if t.status=='pending' %}status-pending{% elif t.status=='rejected' %}status-rejected{% endif %}">
+      {% if session.is_admin or t.user_id == session.user_id %}
+      <form method="POST" action="/topic/{{ t.id }}/delete" style="display:inline" onsubmit="return confirm('Bu tartışmayı silmek istiyor musun?')">
+        <button class="tdel" type="submit">×</button>
+      </form>
+      {% endif %}
+      {% if session.is_admin and t.status != 'approved' %}
+      <div class="status-badge {{ t.status }}">{{ '⏳ Onay Bekliyor' if t.status=='pending' else '✗ Reddedildi' }}</div>
+      {% endif %}
+      <a class="tcard-title" href="/topic/{{ t.id }}" style="display:block;text-decoration:none;color:inherit;">{{ t.title }}</a>
+      <div class="tcard-meta">
+        <span class="tstat"><span class="tdot g"></span>{{ t.cunku_count }} Çünkü</span>
+        <span class="tstat"><span class="tdot r"></span>{{ t.fakat_count }} Fakat</span>
+        <span class="tstat"><span class="tdot y"></span>{{ t.lakin_count }} Lakin</span>
+        <span class="tauthor">@{{ t.username }}</span>
+        <span class="tdate">{{ t.created_at[:10] }}</span>
+      </div>
+
+      {% if t.flags %}
+      <div class="flag-chips">
+        {% for label, count in t.flags.items() %}
+        <span class="flag-chip">🚩 {{ flag_labels.get(label, label) }} ×{{ count }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="vote-row">
+        <form method="POST" action="/vote" style="display:inline">
+          <input type="hidden" name="target_type" value="topic">
+          <input type="hidden" name="target_id" value="{{ t.id }}">
+          <input type="hidden" name="value" value="1">
+          <input type="hidden" name="next" value="/">
+          <button type="submit" class="vote-btn up {% if t.user_vote==1 %}active{% endif %}">👍 {{ t.up }}</button>
+        </form>
+        <span class="vote-score {% if score > 0 %}pos{% elif score < 0 %}neg{% endif %}">{{ score }}</span>
+        <form method="POST" action="/vote" style="display:inline">
+          <input type="hidden" name="target_type" value="topic">
+          <input type="hidden" name="target_id" value="{{ t.id }}">
+          <input type="hidden" name="value" value="-1">
+          <input type="hidden" name="next" value="/">
+          <button type="submit" class="vote-btn down {% if t.user_vote==-1 %}active{% endif %}">👎 {{ t.down }}</button>
+        </form>
+
+        <div style="margin-left:auto;position:relative;display:inline-block;">
+          <button onclick="toggleFlagMenu('hflag{{ t.id }}')" type="button"
+            style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--text-dim);
+            padding:4px 8px;border-radius:6px;border:1px solid var(--border);font-family:'DM Mono',monospace;">
+            🚩 Bildir
+          </button>
+          <div id="hflag{{ t.id }}" class="flag-menu" style="display:none;">
+            {% for key, lbl in flag_labels.items() %}
+            <form method="POST" action="/flag">
+              <input type="hidden" name="target_type" value="topic">
+              <input type="hidden" name="target_id" value="{{ t.id }}">
+              <input type="hidden" name="label" value="{{ key }}">
+              <input type="hidden" name="next" value="/">
+              <button type="submit" class="flag-menu-item">{{ lbl }}</button>
+            </form>
+            {% endfor %}
+          </div>
+        </div>
+
+        {% if session.is_admin and t.status=='pending' %}
+        <form method="POST" action="/admin/topic/{{ t.id }}/approve" style="display:inline">
+          <button type="submit" style="background:var(--green-bg);border:1px solid var(--green-border);
+            color:var(--green);border-radius:6px;padding:4px 10px;cursor:pointer;
+            font-family:'DM Mono',monospace;font-size:10px;">✓ Onayla</button>
+        </form>
+        <form method="POST" action="/admin/topic/{{ t.id }}/reject" style="display:inline">
+          <button type="submit" style="background:var(--red-bg);border:1px solid var(--red-border);
+            color:var(--red);border-radius:6px;padding:4px 10px;cursor:pointer;
+            font-family:'DM Mono',monospace;font-size:10px;">✗ Reddet</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty">
+    <div class="empty-icon">⌇</div>
+    <p>Henüz tartışma yok.<br>Yukarıdan bir konu başlat.</p>
+  </div>
+  {% endif %}
+</div>
+
+<style>
+.flag-menu{position:absolute;right:0;top:32px;background:var(--surface);
+  border:1px solid var(--border);border-radius:10px;padding:6px;z-index:50;
+  min-width:140px;box-shadow:0 8px 24px rgba(0,0,0,.3);}
+.flag-menu-item{display:block;width:100%;text-align:left;background:none;border:none;
+  padding:6px 10px;color:var(--text-muted);font-family:'DM Mono',monospace;font-size:11px;
+  cursor:pointer;border-radius:6px;transition:all .15s;}
+.flag-menu-item:hover{background:var(--red-bg);color:var(--red);}
+</style>
+<script>
+function toggleFlagMenu(id){const el=document.getElementById(id);if(!el)return;
+  const isOpen=el.style.display!=='none';document.querySelectorAll('.flag-menu').forEach(m=>m.style.display='none');
+  if(!isOpen)el.style.display='block';}
+document.addEventListener('click',e=>{if(!e.target.closest('[onclick^="toggleFlagMenu"]')&&!e.target.closest('.flag-menu'))
+  document.querySelectorAll('.flag-menu').forEach(m=>m.style.display='none');});
+</script>
+{% endblock %}
