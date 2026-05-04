@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}{{ topic.title }} — Meydan{% endblock %}
+{% block title %}{{ topic.title }} — Tezİskelesi{% endblock %}
 {% block extra_css %}
 <style>
 .wrap{position:relative;z-index:1;padding:28px 24px 80px;max-width:100%;}
@@ -330,8 +330,9 @@
 {% endblock %}
 
 {% block content %}
+{% set type_labels = {'cunku':'Zira','fakat':'Gelgelelim','lakin':'Yalnız'} %}
 {% set type_cls = {'cunku':'g','fakat':'r','lakin':'y'} %}
-{% set type_lbl = {'cunku':'Çünkü','fakat':'Fakat','lakin':'Lakin'} %}
+{% set type_lbl = type_labels %}
 {% set cunku_c = nodes|selectattr('type','eq','cunku')|list|length %}
 {% set fakat_c = nodes|selectattr('type','eq','fakat')|list|length %}
 {% set lakin_c = nodes|selectattr('type','eq','lakin')|list|length %}
@@ -341,7 +342,7 @@
 {% macro render_subtree(node) %}
 <div class="tree-h">
   <div class="node-card {{ type_cls[node.type] }}">
-    <div class="nc-tag {{ type_cls[node.type] }}">{{ type_lbl[node.type] }}</div>
+    <div class="nc-tag {{ type_cls[node.type] }}">{{ type_labels[node.type] }}</div>
     <div class="nc-text">{{ node.text }}</div>
     <div class="nc-meta">@{{ node.username }} · {{ node.created_at[:16] }}</div>
     {% if node.flags %}<div class="nc-flags">{% for label, count in node.flags.items() %}<span class="nc-flag-chip">🚩 {{ flag_labels.get(label, label) }} ×{{ count }}</span>{% endfor %}</div>{% endif %}
@@ -352,9 +353,9 @@
       <form method="POST" action="/vote" style="display:inline"><input type="hidden" name="target_type" value="node"><input type="hidden" name="target_id" value="{{ node.id }}"><input type="hidden" name="value" value="-1"><input type="hidden" name="next" value="/topic/{{ topic.id }}"><button type="submit" class="nc-vote-btn down {% if node.user_vote==-1 %}active{% endif %}">👎 {{ node.down }}</button></form>
     </div>
     <div class="nc-actions">
-      <button class="nc-reply g" data-nid="{{ node.id }}" data-ntext="{{ node.text[:60] }}" data-ntype="cunku" onclick="openPopup(this)">Çünkü</button>
-      <button class="nc-reply r" data-nid="{{ node.id }}" data-ntext="{{ node.text[:60] }}" data-ntype="fakat" onclick="openPopup(this)">Fakat</button>
-      <button class="nc-reply y" data-nid="{{ node.id }}" data-ntext="{{ node.text[:60] }}" data-ntype="lakin" onclick="openPopup(this)">Lakin</button>
+      <button class="nc-reply g" data-nid="{{ node.id }}" data-ntext="{{ node.text[:60] }}" data-ntype="cunku" onclick="openPopup(this)">Zira</button>
+      <button class="nc-reply r" data-nid="{{ node.id }}" data-ntext="{{ node.text[:60] }}" data-ntype="fakat" onclick="openPopup(this)">Gelgelelim</button>
+      <button class="nc-reply y" data-nid="{{ node.id }}" data-ntext="{{ node.text[:60] }}" data-ntype="lakin" onclick="openPopup(this)">Yalnız</button>
       <div class="nc-flag-wrap"><button class="nc-flag-btn" onclick="toggleFlag(this)">🚩</button><div class="nc-flag-menu" style="display:none;">{% for key, lbl in flag_labels.items() %}<form method="POST" action="/flag"><input type="hidden" name="target_type" value="node"><input type="hidden" name="target_id" value="{{ node.id }}"><input type="hidden" name="label" value="{{ key }}"><input type="hidden" name="next" value="/topic/{{ topic.id }}"><button type="submit" class="nc-flag-item">{{ lbl }}</button></form>{% endfor %}</div></div>
       {% if node.user_id == current_user_id or session.is_admin %}
       <button class="nc-edit-btn" onclick="toggleEdit('pc-{{ node.id }}')">✏️</button>
@@ -381,7 +382,7 @@
 {% macro render_vert_node(node) %}
 <div class="vt-branch tp-{{ node.type }}">
   <div class="vt-card {{ type_cls[node.type] }}">
-    <div class="nc-tag {{ type_cls[node.type] }}">{{ type_lbl[node.type] }}</div>
+    <div class="nc-tag {{ type_cls[node.type] }}">{{ type_labels[node.type] }}</div>
     <div class="nc-text">{{ node.text }}</div>
     <div class="nc-meta">@{{ node.username }} · {{ node.created_at[:16] }}</div>
     {% if node.flags %}<div class="nc-flags">{% for label, count in node.flags.items() %}<span class="nc-flag-chip">🚩 {{ flag_labels.get(label, label) }} ×{{ count }}</span>{% endfor %}</div>{% endif %}
@@ -392,9 +393,9 @@
       <form method="POST" action="/vote" style="display:inline"><input type="hidden" name="target_type" value="node"><input type="hidden" name="target_id" value="{{ node.id }}"><input type="hidden" name="value" value="-1"><input type="hidden" name="next" value="/topic/{{ topic.id }}"><button type="submit" class="nc-vote-btn down {% if node.user_vote==-1 %}active{% endif %}">👎 {{ node.down }}</button></form>
     </div>
     <div class="nc-actions">
-      <button class="nc-reply g" data-nid="{{ node.id }}" data-ntext="{{ node.text[:60] }}" data-ntype="cunku" onclick="openPopup(this)">Çünkü</button>
-      <button class="nc-reply r" data-nid="{{ node.id }}" data-ntext="{{ node.text[:60] }}" data-ntype="fakat" onclick="openPopup(this)">Fakat</button>
-      <button class="nc-reply y" data-nid="{{ node.id }}" data-ntext="{{ node.text[:60] }}" data-ntype="lakin" onclick="openPopup(this)">Lakin</button>
+      <button class="nc-reply g" data-nid="{{ node.id }}" data-ntext="{{ node.text[:60] }}" data-ntype="cunku" onclick="openPopup(this)">Zira</button>
+      <button class="nc-reply r" data-nid="{{ node.id }}" data-ntext="{{ node.text[:60] }}" data-ntype="fakat" onclick="openPopup(this)">Gelgelelim</button>
+      <button class="nc-reply y" data-nid="{{ node.id }}" data-ntext="{{ node.text[:60] }}" data-ntype="lakin" onclick="openPopup(this)">Yalnız</button>
       <div class="nc-flag-wrap"><button class="nc-flag-btn" onclick="toggleFlag(this)">🚩</button><div class="nc-flag-menu" style="display:none;">{% for key, lbl in flag_labels.items() %}<form method="POST" action="/flag"><input type="hidden" name="target_type" value="node"><input type="hidden" name="target_id" value="{{ node.id }}"><input type="hidden" name="label" value="{{ key }}"><input type="hidden" name="next" value="/topic/{{ topic.id }}"><button type="submit" class="nc-flag-item">{{ lbl }}</button></form>{% endfor %}</div></div>
       {% if node.user_id == current_user_id or session.is_admin %}
       <button class="nc-edit-btn" onclick="toggleEdit('tr-{{ node.id }}')">✏️</button>
@@ -451,9 +452,9 @@
 
   {# ─── İSTATİSTİK ─── #}
   <div class="stats-bar">
-    <div class="stat"><div class="stat-n g">{{ cunku_c }}</div><div class="stat-l">Çünkü</div></div>
-    <div class="stat"><div class="stat-n r">{{ fakat_c }}</div><div class="stat-l">Fakat</div></div>
-    <div class="stat"><div class="stat-n y">{{ lakin_c }}</div><div class="stat-l">Lakin</div></div>
+    <div class="stat"><div class="stat-n g">{{ cunku_c }}</div><div class="stat-l">Zira</div></div>
+    <div class="stat"><div class="stat-n r">{{ fakat_c }}</div><div class="stat-l">Gelgelelim</div></div>
+    <div class="stat"><div class="stat-n y">{{ lakin_c }}</div><div class="stat-l">Yalnız</div></div>
   </div>
 
   {# ─── GÖRÜNÜM SEÇİCİ ─── #}
@@ -465,9 +466,9 @@
 
   {# ─── ANA CEVAP BUTONLARI ─── #}
   <div class="root-actions">
-    <button class="reply-btn g" data-nid="" data-ntext="{{ topic.title[:60] }}" data-ntype="cunku" onclick="openPopup(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Çünkü</button>
-    <button class="reply-btn r" data-nid="" data-ntext="{{ topic.title[:60] }}" data-ntype="fakat" onclick="openPopup(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Fakat</button>
-    <button class="reply-btn y" data-nid="" data-ntext="{{ topic.title[:60] }}" data-ntype="lakin" onclick="openPopup(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Lakin</button>
+    <button class="reply-btn g" data-nid="" data-ntext="{{ topic.title[:60] }}" data-ntype="cunku" onclick="openPopup(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Zira</button>
+    <button class="reply-btn r" data-nid="" data-ntext="{{ topic.title[:60] }}" data-ntype="fakat" onclick="openPopup(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Gelgelelim</button>
+    <button class="reply-btn y" data-nid="" data-ntext="{{ topic.title[:60] }}" data-ntype="lakin" onclick="openPopup(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Yalnız</button>
   </div>
 
   {# ═══════════════════════════════════════════
@@ -498,9 +499,9 @@
   <div class="mobile-tree">
     <div class="m-root-form-section">
       <div class="m-root-actions">
-        <button class="m-reply-btn cunku" data-nid="" data-ntext="{{ topic.title[:60] }}" data-ntype="cunku" onclick="openPopup(this)">+ Çünkü</button>
-        <button class="m-reply-btn fakat" data-nid="" data-ntext="{{ topic.title[:60] }}" data-ntype="fakat" onclick="openPopup(this)">+ Fakat</button>
-        <button class="m-reply-btn lakin" data-nid="" data-ntext="{{ topic.title[:60] }}" data-ntype="lakin" onclick="openPopup(this)">+ Lakin</button>
+        <button class="m-reply-btn cunku" data-nid="" data-ntext="{{ topic.title[:60] }}" data-ntype="cunku" onclick="openPopup(this)">+ Zira</button>
+        <button class="m-reply-btn fakat" data-nid="" data-ntext="{{ topic.title[:60] }}" data-ntype="fakat" onclick="openPopup(this)">+ Gelgelelim</button>
+        <button class="m-reply-btn lakin" data-nid="" data-ntext="{{ topic.title[:60] }}" data-ntype="lakin" onclick="openPopup(this)">+ Yalnız</button>
       </div>
     </div>
     {% if nodes %}
@@ -509,7 +510,7 @@
         <div class="m-node-inner">
           {% if n.parent_type %}<div class="m-context ctx-{{ n.parent_type }}">↳ {{ n.parent_text }}</div>{% else %}<div class="m-context ctx-root">↳ {{ topic.title[:60] }}</div>{% endif %}
           <div class="m-depth-bar">{% for i in range(n.depth) %}<div class="m-depth-dot"></div><div class="m-depth-line"></div>{% endfor %}<div class="m-depth-dot active-{{ type_cls[n.type] }}"></div></div>
-          <div class="m-tag-row"><span class="m-tag {{ n.type }}">{{ type_lbl[n.type] }}</span><span class="m-author">@{{ n.username }}</span><span class="m-time">{{ n.created_at[:16] }}</span></div>
+          <div class="m-tag-row"><span class="m-tag {{ n.type }}">{{ type_labels[n.type] }}</span><span class="m-author">@{{ n.username }}</span><span class="m-time">{{ n.created_at[:16] }}</span></div>
           <div class="m-text">{{ n.text }}</div>
           {% if n.flags %}<div class="m-flags">{% for label, count in n.flags.items() %}<span class="m-flag-chip">🚩 {{ flag_labels.get(label, label) }} ×{{ count }}</span>{% endfor %}</div>{% endif %}
           {% set mscore = n.up - n.down %}
@@ -519,9 +520,9 @@
             <form method="POST" action="/vote" style="display:inline"><input type="hidden" name="target_type" value="node"><input type="hidden" name="target_id" value="{{ n.id }}"><input type="hidden" name="value" value="-1"><input type="hidden" name="next" value="/topic/{{ topic.id }}"><button type="submit" class="m-vote-btn down {% if n.user_vote==-1 %}active{% endif %}">👎 {{ n.down }}</button></form>
           </div>
           <div class="m-actions">
-            <button class="m-reply-btn cunku" data-nid="{{ n.id }}" data-ntext="{{ n.text[:60] }}" data-ntype="cunku" onclick="openPopup(this)">Çünkü</button>
-            <button class="m-reply-btn fakat" data-nid="{{ n.id }}" data-ntext="{{ n.text[:60] }}" data-ntype="fakat" onclick="openPopup(this)">Fakat</button>
-            <button class="m-reply-btn lakin" data-nid="{{ n.id }}" data-ntext="{{ n.text[:60] }}" data-ntype="lakin" onclick="openPopup(this)">Lakin</button>
+            <button class="m-reply-btn cunku" data-nid="{{ n.id }}" data-ntext="{{ n.text[:60] }}" data-ntype="cunku" onclick="openPopup(this)">Zira</button>
+            <button class="m-reply-btn fakat" data-nid="{{ n.id }}" data-ntext="{{ n.text[:60] }}" data-ntype="fakat" onclick="openPopup(this)">Gelgelelim</button>
+            <button class="m-reply-btn lakin" data-nid="{{ n.id }}" data-ntext="{{ n.text[:60] }}" data-ntype="lakin" onclick="openPopup(this)">Yalnız</button>
             <div class="m-flag-wrap"><button class="m-flag-btn" onclick="toggleFlag(this)">🚩</button><div class="m-flag-menu" style="display:none;">{% for key, lbl in flag_labels.items() %}<form method="POST" action="/flag"><input type="hidden" name="target_type" value="node"><input type="hidden" name="target_id" value="{{ n.id }}"><input type="hidden" name="label" value="{{ key }}"><input type="hidden" name="next" value="/topic/{{ topic.id }}"><button type="submit" class="m-flag-menu-item">{{ lbl }}</button></form>{% endfor %}</div></div>
             {% if n.user_id == current_user_id or session.is_admin %}
             <button class="m-edit-btn" onclick="toggleEdit('ml-{{ n.id }}')">✏️</button>
@@ -585,12 +586,10 @@ function setView(view){
   w.classList.add('view-'+view);
   localStorage.setItem('meydan-topic-view',view);
   document.querySelectorAll('.vt-btn').forEach(b=>{b.classList.toggle('active',b.getAttribute('data-view')===view);});
-  /* Tek çocuk kontrolü (ağaç görünümü için) */
   if(view==='agac')fixSingleChildren();
 }
 (function(){const s=localStorage.getItem('meydan-topic-view')||'klasik';setView(s);})();
 
-/* Tek çocuklu vt-children'larda yatay çizgiyi gizle */
 function fixSingleChildren(){
   document.querySelectorAll('.vt-children').forEach(el=>{
     if(el.querySelectorAll(':scope > .vt-branch').length<=1)el.classList.add('single-child');
@@ -606,7 +605,7 @@ function openPopup(btn){
   document.getElementById('popupParentId').value=nid;
   document.getElementById('popupType').value=ntype;
   document.getElementById('popupParent').textContent='↳ '+ntext;
-  const labels={cunku:'Çünkü',fakat:'Fakat',lakin:'Lakin'};
+  const labels={cunku:'Zira',fakat:'Gelgelelim',lakin:'Yalnız'};
   const cls={cunku:'g',fakat:'r',lakin:'y'};
   document.getElementById('popupTitle').textContent=labels[ntype]+' — Cevap Yaz';
   const b=document.getElementById('popupSubmit');

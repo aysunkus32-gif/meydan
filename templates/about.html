@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Hakkında — Meydan{% endblock %}
+{% block title %}Hakkında — Tezİskelesi{% endblock %}
 {% block extra_css %}
 <style>
 .wrap{position:relative;z-index:1;max-width:720px;margin:0 auto;padding:36px 20px 80px;}
@@ -18,6 +18,7 @@
   background:none;border:none;cursor:pointer;font-family:'DM Mono',monospace;padding:6px 0;
   transition:color .2s;text-decoration:none;margin-bottom:20px;}
 .back-btn:hover{color:var(--text-primary);}
+.empty{text-align:center;padding:60px 20px;color:var(--text-dim);font-size:12px;}
 </style>
 {% endblock %}
 {% block content %}
@@ -27,13 +28,17 @@
     Ana Sayfa
   </a>
   <div class="page-title">ℹ️ Hakkında</div>
-  <div class="page-sub">Meydan platformu hakkında bilgiler</div>
+  <div class="page-sub">Tezİskelesi platformu hakkında bilgiler</div>
 
-  {% for item in items %}
-  <div class="content-card">
-    <div class="content-title">{{ item.title }}</div>
-    <div class="content-body">{{ item.body }}</div>
-  </div>
-  {% endfor %}
+  {% if items %}
+    {% for item in items %}
+    <div class="content-card">
+      <div class="content-title">{{ item.title }}</div>
+      <div class="content-body">{{ item.body }}</div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty">Henüz içerik eklenmemiş.<br>Admin panelinden içerik ekleyebilirsiniz.</div>
+  {% endif %}
 </div>
 {% endblock %}

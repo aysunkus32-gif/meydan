@@ -3,348 +3,619 @@
 {% block extra_css %}
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-body{overflow:hidden;}
+body{overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;}
 
-/* UST ARAÇ ÇUBUĞU */
-.pik-toolbar{position:fixed;top:56px;left:0;right:0;z-index:50;
+/* ══════ HAFTA BİLGİ ÇUBUĞU ══════ */
+.pik-week{
+  position:fixed;top:44px;left:0;right:0;z-index:52;
   background:var(--surface);border-bottom:1px solid var(--border);
-  display:flex;align-items:center;gap:12px;padding:8px 16px;flex-wrap:wrap;}
-.pik-balance{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--accent);
-  display:flex;align-items:center;gap:6px;flex-shrink:0;}
-.pik-balance small{font-size:10px;font-weight:400;color:var(--text-muted);letter-spacing:1px;}
-.color-palette{display:flex;gap:3px;flex-wrap:wrap;align-items:center;}
-.cs{width:26px;height:26px;border-radius:5px;cursor:pointer;border:2px solid transparent;
-  transition:all .15s;flex-shrink:0;}
-.cs:hover{transform:scale(1.2);z-index:2;}
-.cs.active{border-color:var(--text-primary);box-shadow:0 0 8px rgba(255,255,255,.4);}
-.cs-eraser{background:repeating-conic-gradient(#ccc 0% 25%, #fff 0% 50%) 50%/12px 12px;
-  border:2px solid var(--border);}
-.cc{width:26px;height:26px;border-radius:5px;cursor:pointer;border:1px solid var(--border);
-  padding:0;overflow:hidden;flex-shrink:0;}
-.cc input{width:36px;height:36px;border:none;cursor:pointer;margin:-5px;}
-.pik-coord{font-size:10px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-left:auto;flex-shrink:0;}
-.pik-hint{font-size:9px;color:var(--text-dim);flex-shrink:0;}
+  font-family:'DM Mono',monospace;
+}
+.pik-week-head{
+  display:flex;align-items:center;gap:6px;
+  padding:5px 10px;cursor:pointer;
+  font-size:10px;color:var(--text-muted);
+}
+.pik-week-head .wk-logo{font-weight:800;color:var(--accent);font-size:11px;}
+.pik-week-head .wk-timer{color:#e74c3c;font-weight:600;margin-left:auto;}
+.pik-week-head .wk-arrow{
+  font-size:11px;transition:transform .2s;color:var(--text-dim);
+}
+.pik-week-head .wk-arrow.open{transform:rotate(180deg);}
 
-/* TUVAL ALANI */
-.pik-canvas-area{position:fixed;top:110px;left:0;right:0;bottom:0;
-  overflow:auto;background:var(--bg);cursor:crosshair;}
-.pik-canvas-area.dragging{cursor:grabbing;}
-.pik-canvas-area.erasing{cursor:not-allowed;}
+.pik-week-body{
+  display:none;padding:0 10px 8px;
+  border-top:1px solid var(--border);
+  animation:slideD .2s ease;
+}
+.pik-week-body.open{display:block;}
 
-/* CANVAS */
-#pikCanvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges;}
+.wk-row{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:10px;color:var(--text-muted);}
+.wk-row b{color:var(--text-primary);font-size:10px;}
+.wk-archive-btn{
+  margin-top:6px;
+  background:var(--accent-bg);border:1px solid var(--accent);
+  color:var(--accent);border-radius:6px;cursor:pointer;
+  font-size:10px;padding:5px 14px;
+  font-family:'DM Mono',monospace;transition:all .15s;
+}
+.wk-archive-btn:hover{background:var(--accent);color:#fff;}
 
-/* TOAST */
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
-  background:var(--surface);border:1px solid var(--border);border-radius:10px;
-  padding:10px 20px;font-size:12px;color:var(--text-primary);z-index:200;
-  box-shadow:0 8px 30px rgba(0,0,0,.4);display:none;animation:fadeUp .2s ease;}
+@keyframes slideD{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
+
+/* ══════ TOOLBAR ══════ */
+.pik-toolbar{
+  position:fixed;left:0;right:0;z-index:51;
+  display:flex;align-items:center;gap:6px;
+  padding:4px 8px;background:var(--surface);
+  border-bottom:1px solid var(--border);
+  overflow-x:auto;overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;
+}
+.pik-toolbar::-webkit-scrollbar{height:0;display:none;}
+
+.pik-balance{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:13px;
+  color:var(--accent);flex-shrink:0;display:flex;align-items:center;gap:3px;
+}
+.pik-balance small{font-size:8px;font-weight:400;color:var(--text-muted);}
+
+.color-palette{
+  display:flex;gap:2px;flex-shrink:0;flex-wrap:nowrap;
+  align-items:center;
+}
+.cs{
+  width:24px;height:24px;border-radius:4px;cursor:pointer;
+  border:2px solid transparent;transition:all .15s;flex-shrink:0;
+}
+.cs:hover{transform:scale(1.15);}
+.cs.active{border-color:var(--text-primary);box-shadow:0 0 6px rgba(255,255,255,.3);}
+.cs-eraser{background:repeating-conic-gradient(#ccc 0% 25%,#fff 0% 50%) 50%/8px 8px;}
+.cc{
+  width:24px;height:24px;border-radius:4px;cursor:pointer;
+  border:1px solid var(--border);padding:0;overflow:hidden;flex-shrink:0;
+}
+.cc input{width:30px;height:30px;border:none;cursor:pointer;margin:-3px;}
+.pik-coord{
+  font-size:8px;color:var(--text-dim);font-family:'DM Mono',monospace;
+  margin-left:auto;flex-shrink:0;
+}
+
+/* ══════ CANVAS ══════ */
+.pik-canvas-area{
+  position:fixed;left:0;right:0;bottom:0;overflow:hidden;
+  background:var(--bg);cursor:crosshair;
+}
+#pikCanvas{
+  position:absolute;top:0;left:0;touch-action:none;
+  image-rendering:pixelated;image-rendering:crisp-edges;
+}
+
+/* ══════ TOAST ══════ */
+.toast{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+  background:var(--surface);border:1px solid var(--border);border-radius:8px;
+  padding:8px 16px;font-size:11px;color:var(--text-primary);z-index:200;
+  display:none;font-family:'DM Mono',monospace;
+}
 .toast.show{display:block;}
 .toast.ok{border-color:var(--green-border);color:var(--green);}
 .toast.err{border-color:var(--red-border);color:var(--red);}
 
-/* ZOOM KONTROL */
-.zoom-controls{position:fixed;bottom:20px;right:20px;z-index:60;
-  display:flex;flex-direction:column;gap:4px;}
-.zoom-btn{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);
-  background:var(--surface);color:var(--text-primary);font-size:18px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;transition:all .2s;
-  font-family:'DM Mono',monospace;}
-.zoom-btn:hover{border-color:var(--accent);color:var(--accent);}
-.zoom-level{font-size:10px;color:var(--text-dim);text-align:center;font-family:'DM Mono',monospace;}
+/* ══════ ARŞİV BANNER ══════ */
+.archive-banner{
+  position:fixed;top:44px;left:0;right:0;z-index:53;
+  background:linear-gradient(90deg,#2d1b69,#1a0533);
+  border-bottom:2px solid #6c5ce7;
+  display:flex;align-items:center;gap:8px;padding:6px 12px;
+  font-family:'Syne',sans-serif;font-size:11px;color:#a29bfe;
+  animation:slideD .3s ease;
+}
+.archive-banner .ab-title{font-weight:800;color:#dfe6e9;font-size:12px;}
+.archive-banner .ab-period{color:#74b9ff;font-size:9px;font-family:'DM Mono',monospace;}
+.archive-banner .ab-close{
+  margin-left:auto;cursor:pointer;color:#e74c3c;font-size:12px;
+  background:none;border:1px solid #e74c3c;border-radius:6px;
+  padding:2px 8px;font-family:'DM Mono',monospace;transition:all .15s;
+}
+.archive-banner .ab-close:hover{background:#e74c3c;color:#fff;}
+.archive-banner.hidden{display:none;}
 
-@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+/* ══════ ARŞİV PANEL ══════ */
+.archive-panel{
+  display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;
+  background:rgba(0,0,0,.7);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  justify-content:center;align-items:center;animation:fadeIn .2s ease;
+}
+.archive-panel.open{display:flex;}
+.archive-panel-inner{
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  width:92%;max-width:460px;max-height:75vh;overflow-y:auto;
+  padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.5);
+}
+.archive-panel-inner h2{
+  font-family:'Syne',sans-serif;font-size:16px;font-weight:800;
+  color:var(--text-primary);margin-bottom:3px;
+}
+.archive-panel-inner .ap-sub{
+  font-size:9px;color:var(--text-muted);font-family:'DM Mono',monospace;margin-bottom:14px;
+}
+.archive-item{
+  display:flex;align-items:center;gap:10px;padding:8px 10px;
+  border:1px solid var(--border);border-radius:10px;cursor:pointer;
+  margin-bottom:6px;transition:all .15s;background:var(--bg);
+}
+.archive-item:hover{border-color:var(--accent);background:var(--accent-bg);}
+.archive-item .ai-icon{font-size:18px;flex-shrink:0;}
+.archive-item .ai-info{flex:1;}
+.archive-item .ai-week{font-family:'Syne',sans-serif;font-weight:700;font-size:12px;color:var(--text-primary);}
+.archive-item .ai-date{font-size:8px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+.archive-item .ai-arrow{color:var(--text-dim);font-size:13px;}
+.archive-empty{text-align:center;padding:30px;color:var(--text-dim);font-family:'DM Mono',monospace;font-size:11px;}
+.archive-panel-close{
+  display:block;margin:12px auto 0;background:none;
+  border:1px solid var(--border);border-radius:8px;
+  color:var(--text-muted);padding:5px 18px;cursor:pointer;
+  font-family:'DM Mono',monospace;font-size:10px;transition:all .15s;
+}
+.archive-panel-close:hover{border-color:var(--accent);color:var(--accent);}
+
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+
+/* ══════ LANDSCAPE TELEFON ══════ */
+@media(orientation:landscape) and (max-height:500px){
+  .topbar{display:none!important;}
+  .pik-week{display:none!important;}
+  .pik-toolbar{display:none!important;}
+  .pik-canvas-area{top:0!important;left:48px!important;right:0!important;bottom:0!important;}
+  .pik-side-panel{display:flex!important;}
+  .archive-banner{top:0!important;}
+}
+
+/* Sol panel (landscape) */
+.pik-side-panel{
+  display:none;position:fixed;top:0;left:0;bottom:0;width:48px;z-index:50;
+  background:var(--surface);border-right:1px solid var(--border);
+  flex-direction:column;align-items:center;
+  padding:4px 3px;gap:2px;overflow-y:auto;overflow-x:hidden;
+}
+.pik-side-panel .cs{width:20px;height:20px;border-radius:3px;}
+.pik-side-panel .cc{width:20px;height:20px;}
+.pik-side-panel .cc input{width:26px;height:26px;margin:-3px;}
+.pik-side-panel .cs-eraser{background:repeating-conic-gradient(#ccc 0% 25%,#fff 0% 50%) 50%/7px 7px;}
+.pik-side-balance{
+  font-size:8px;font-weight:800;color:var(--accent);text-align:center;
+  font-family:'Syne',sans-serif;line-height:1.2;padding:2px 0;
+  border-bottom:1px solid var(--border);width:100%;flex-shrink:0;
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- ARAÇ ÇUBUĞU -->
-<div class="pik-toolbar">
-  <div class="pik-balance">
-    ◆ <span id="pikBal">{{ pik_balance }}</span>
-    <small>pik</small>
-  </div>
-  <div class="color-palette" id="palette"></div>
-  <div class="pik-coord" id="coordInfo">0, 0</div>
-  <div class="pik-hint">Tıkla: boya | Silgi: kendi pikselini sil</div>
+
+<!-- ARŞİV MODU BANNER -->
+<div class="archive-banner hidden" id="archiveBanner">
+  <span>📜</span>
+  <span class="ab-title" id="archiveBannerTitle">Arşiv</span>
+  <span class="ab-period" id="archiveBannerPeriod"></span>
+  <button class="ab-close" onclick="exitArchiveMode()">✕ Bu Haftaya Dön</button>
 </div>
 
-<!-- TUVAL -->
+<!-- HAFTA BİLGİSİ -->
+<div class="pik-week" id="pikWeek">
+  <div class="pik-week-head" onclick="toggleWeek()">
+    <span class="wk-logo">◆ PikPik</span>
+    <span>·</span>
+    <span id="wkDateRange">—</span>
+    <span class="wk-timer" id="resetTimer">—</span>
+    <span class="wk-arrow" id="weekArrow">▾</span>
+  </div>
+  <div class="pik-week-body" id="weekBody">
+    <div class="wk-row">
+      <span>Hafta başı:</span><b id="weekStartLabel">—</b>
+    </div>
+    <div class="wk-row">
+      <span>Hafta sonu:</span><b id="weekEndLabel">—</b>
+    </div>
+    <div class="wk-row">
+      <span>Sıfırlanma:</span><b id="resetTimerFull">—</b>
+    </div>
+    <button class="wk-archive-btn" onclick="event.stopPropagation();openArchivePanel()">📜 Geçmiş Haftalar</button>
+  </div>
+</div>
+
+<!-- TOOLBAR -->
+<div class="pik-toolbar" id="pikToolbar">
+  <div class="pik-balance">◆ <span id="pikBal">{{ pik_balance }}</span><small>pik</small></div>
+  <div class="color-palette" id="palette"></div>
+  <div class="pik-coord" id="coordInfo">0, 0</div>
+</div>
+
+<!-- LANDSCAPE SOL PANEL -->
+<div class="pik-side-panel" id="sidePanel">
+  <div class="pik-side-balance">◆<br><span id="pikBalSide">{{ pik_balance }}</span></div>
+  <div id="sidePalette"></div>
+</div>
+
+<!-- CANVAS -->
 <div class="pik-canvas-area" id="canvasArea">
   <canvas id="pikCanvas"></canvas>
 </div>
 
-<!-- ZOOM -->
-<div class="zoom-controls">
-  <button class="zoom-btn" onclick="zoomIn()">+</button>
-  <div class="zoom-level" id="zoomLevel">8px</div>
-  <button class="zoom-btn" onclick="zoomOut()">−</button>
+<!-- ARŞİV PANEL -->
+<div class="archive-panel" id="archivePanel">
+  <div class="archive-panel-inner">
+    <h2>📜 Geçmiş Haftalar</h2>
+    <p class="ap-sub">Tamamlanan haftaları görüntüleyebilirsiniz, düzenleme yapılamaz.</p>
+    <div id="archiveList"><div class="archive-empty">Yükleniyor...</div></div>
+    <button class="archive-panel-close" onclick="closeArchivePanel()">Kapat</button>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const GRID = 100;
-let cellSize = Math.floor((window.innerWidth - 40) / GRID);
-if (cellSize < 4) cellSize = 4;
-if (cellSize > 20) cellSize = 20;
+var GRID=100, cellSize=6;
+var selectedColor='#e74c3c', isEraser=false;
+var pixels={}, pikBalance={{ pik_balance }};
+var viewScale=1, viewX=0, viewY=0;
+var pinchStartDist=0, pinchStartScale=1, isPinching=false;
+var lastTapTime=0, lastTapPos=null, isPanning=false, panStart=null;
+var archiveMode=false, currentArchiveId=null;
 
-let selectedColor = '#e74c3c';
-let isEraser = false;
-let pixels = {};
-let pikBalance = {{ pik_balance }};
-let isDragging = false;
-let dragStart = {x:0,y:0};
-let scrollStart = {x:0,y:0};
-let hasDragged = false;
+var canvas=document.getElementById('pikCanvas');
+var ctx=canvas.getContext('2d');
+var area=document.getElementById('canvasArea');
 
-const canvas = document.getElementById('pikCanvas');
-const ctx = canvas.getContext('2d');
-const area = document.getElementById('canvasArea');
-
-// Renk paleti
-const COLORS = [
+var COLORS=[
   '#000000','#ffffff','#e74c3c','#e67e22','#f1c40f','#2ecc71','#1abc9c',
   '#3498db','#9b59b6','#34495e','#e84393','#fd79a8','#00cec9','#6c5ce7',
   '#d63031','#00b894','#0984e3','#fdcb6e','#fab1a0','#636e72',
   '#2d3436','#dfe6e9','#b2bec3','#ffeaa0','#55efc4','#74b9ff','#a29bfe',
-  '#ff7675','#fd79a8','#e17055','#00b894','#0984e3','#6c5ce7'
+  '#ff7675','#fd79a8','#e17055'
 ];
 
-const palette = document.getElementById('palette');
-
-// Silgi
-const eraser = document.createElement('div');
-eraser.className = 'cs cs-eraser';
-eraser.title = 'Silgi (kendi pikselini sil)';
-eraser.onclick = () => {
-  isEraser = true;
-  document.querySelectorAll('.cs').forEach(s => s.classList.remove('active'));
-  eraser.classList.add('active');
-};
-palette.appendChild(eraser);
-
-// Renkler
-COLORS.forEach(c => {
-  const sw = document.createElement('div');
-  sw.className = 'cs';
-  sw.style.background = c;
-  sw.onclick = () => {
-    isEraser = false;
-    selectedColor = c;
-    document.querySelectorAll('.cs').forEach(s => s.classList.remove('active'));
-    eraser.classList.remove('active');
-    sw.classList.add('active');
-  };
-  palette.appendChild(sw);
-});
-
-// Ozel renk
-const cc = document.createElement('div');
-cc.className = 'cc';
-cc.innerHTML = '<input type="color" value="#ff00ff" oninput="pickCustom(this.value)">';
-palette.appendChild(cc);
-
-function pickCustom(c) {
-  isEraser = false;
-  selectedColor = c;
-  document.querySelectorAll('.cs').forEach(s => s.classList.remove('active'));
-  eraser.classList.remove('active');
+/* ─── Yardımcılar ─── */
+function updateBalance(v){
+  pikBalance=v;
+  var ids=['pikBal','pikBalSide'];
+  ids.forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=v;});
+}
+function showToast(m,t){
+  var el=document.getElementById('toast');
+  el.textContent=m;el.className='toast show '+t;
+  setTimeout(function(){el.className='toast';},2000);
 }
 
-// Varsayilan renk sec
-palette.querySelectorAll('.cs:not(.cs-eraser)')[2].classList.add('active');
+/* ─── Hafta panel toggle ─── */
+function toggleWeek(){
+  var body=document.getElementById('weekBody');
+  var arrow=document.getElementById('weekArrow');
+  body.classList.toggle('open');
+  arrow.classList.toggle('open');
+  setTimeout(function(){positionToolbar();positionCanvas();},250);
+}
 
-// Zoom
-function resizeCanvas() {
-  canvas.width = GRID * cellSize;
-  canvas.height = GRID * cellSize;
+/* ─── Toolbar konumlandırma ─── */
+function positionToolbar(){
+  var weekEl=document.getElementById('pikWeek');
+  var weekH=weekEl.offsetHeight||0;
+  var banner=document.getElementById('archiveBanner');
+  var bannerH=(banner&&!banner.classList.contains('hidden'))?banner.offsetHeight:0;
+  var top=44+bannerH+weekH;
+  document.getElementById('pikToolbar').style.top=top+'px';
+}
+
+/* ─── Renk paleti ─── */
+function buildPalette(container){
+  var eraser=document.createElement('div');
+  eraser.className='cs cs-eraser';eraser.title='Silgi (E)';
+  eraser.onclick=function(){
+    isEraser=true;
+    document.querySelectorAll('.cs').forEach(function(s){s.classList.remove('active');});
+    document.querySelectorAll('.cs-eraser').forEach(function(e){e.classList.add('active');});
+  };
+  container.appendChild(eraser);
+  COLORS.forEach(function(c){
+    var sw=document.createElement('div');
+    sw.className='cs';sw.style.background=c;sw.setAttribute('data-color',c);
+    sw.onclick=function(){
+      isEraser=false;selectedColor=c;
+      document.querySelectorAll('.cs').forEach(function(s){s.classList.remove('active');});
+      document.querySelectorAll('.cs-eraser').forEach(function(e){e.classList.remove('active');});
+      document.querySelectorAll('[data-color="'+c+'"]').forEach(function(s){s.classList.add('active');});
+    };
+    container.appendChild(sw);
+  });
+  var cc=document.createElement('div');cc.className='cc';
+  cc.innerHTML='<input type="color" value="#ff00ff" oninput="isEraser=false;selectedColor=this.value;document.querySelectorAll(\'.cs\').forEach(s=>s.classList.remove(\'active\'))">';
+  container.appendChild(cc);
+}
+buildPalette(document.getElementById('palette'));
+var sp=document.getElementById('sidePalette');
+if(sp)buildPalette(sp);
+document.querySelectorAll('#palette .cs:not(.cs-eraser)')[2].classList.add('active');
+
+/* ─── Canvas boyutlandırma ─── */
+function calcCanvasTop(){
+  var banner=document.getElementById('archiveBanner');
+  var bannerH=(banner&&!banner.classList.contains('hidden'))?banner.offsetHeight:0;
+  var weekH=document.getElementById('pikWeek').offsetHeight||0;
+  var toolH=document.getElementById('pikToolbar').offsetHeight||0;
+  return 44+bannerH+weekH+toolH;
+}
+function resizeCanvas(){
+  canvas.width=area.clientWidth;
+  canvas.height=area.clientHeight;
   renderGrid();
 }
-function zoomIn() {
-  cellSize = Math.min(32, cellSize + 2);
-  document.getElementById('zoomLevel').textContent = cellSize + 'px';
-  resizeCanvas();
-}
-function zoomOut() {
-  cellSize = Math.max(2, cellSize - 2);
-  document.getElementById('zoomLevel').textContent = cellSize + 'px';
+function positionCanvas(){
+  var top=calcCanvasTop();
+  area.style.top=top+'px';
   resizeCanvas();
 }
 
-// Grid ciz
-function renderGrid() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // Arka plan
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // Izgara cizgileri (sadece buyuk hucrelerde)
-  if (cellSize >= 4) {
-    ctx.strokeStyle = 'rgba(42,46,56,.5)';
-    ctx.lineWidth = 0.5;
-    for (let i = 0; i <= GRID; i++) {
-      ctx.beginPath();
-      ctx.moveTo(i * cellSize, 0);
-      ctx.lineTo(i * cellSize, canvas.height);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(0, i * cellSize);
-      ctx.lineTo(canvas.width, i * cellSize);
-      ctx.stroke();
-    }
+/* ─── Çizim ─── */
+function renderGrid(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle=archiveMode?'#0d0f15':'#1a1d24';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.save();
+  ctx.translate(viewX,viewY);
+  ctx.scale(viewScale,viewScale);
+  var totalW=GRID*cellSize,totalH=GRID*cellSize;
+  ctx.fillStyle=archiveMode?'#080a10':'#12141a';
+  ctx.fillRect(0,0,totalW,totalH);
+  ctx.strokeStyle=archiveMode?'rgba(60,70,100,.4)':'rgba(80,90,110,.6)';
+  ctx.lineWidth=0.5/viewScale;
+  for(var i=0;i<=GRID;i++){
+    ctx.beginPath();ctx.moveTo(i*cellSize,0);ctx.lineTo(i*cellSize,totalH);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,i*cellSize);ctx.lineTo(totalW,i*cellSize);ctx.stroke();
   }
-
-  // Renkli pikseller
-  Object.values(pixels).forEach(p => {
-    ctx.fillStyle = p.color;
-    const gap = cellSize >= 6 ? 0.5 : 0;
-    const radius = cellSize >= 6 ? 1 : 0;
-    const x = p.x * cellSize + gap;
-    const y = p.y * cellSize + gap;
-    const s = cellSize - gap * 2;
-    if (radius > 0) {
-      ctx.beginPath();
-      ctx.roundRect(x, y, s, s, radius);
-      ctx.fill();
-    } else {
-      ctx.fillRect(x, y, s, s);
-    }
+  Object.values(pixels).forEach(function(p){
+    ctx.fillStyle=p.color;
+    var g=0.5,x=p.x*cellSize+g,y=p.y*cellSize+g,s=cellSize-g*2;
+    ctx.fillRect(x,y,s,s);
   });
+  ctx.strokeStyle=archiveMode?'#6c5ce7':'#e74c3c';
+  ctx.lineWidth=2/viewScale;
+  ctx.strokeRect(0,0,totalW,totalH);
+  if(archiveMode){ctx.fillStyle='rgba(108,92,231,.06)';ctx.fillRect(0,0,totalW,totalH);}
+  ctx.restore();
 }
 
-// Pikselleri yukle
-async function loadPixels() {
-  try {
-    const res = await fetch('/pikpik/api/pixels');
-    const data = await res.json();
-    pixels = {};
-    data.forEach(p => { pixels[p.x + ',' + p.y] = p; });
+async function loadPixels(){
+  try{
+    var res=await fetch('/pikpik/api/pixels');
+    var data=await res.json();
+    pixels={};
+    data.forEach(function(p){pixels[p.x+','+p.y]=p;});
     renderGrid();
-  } catch(e) {
-    console.error('Piksel yukleme hatasi:', e);
+  }catch(e){console.error(e);}
+}
+/* ═══ Profil'den gelen koordinata odaklan ═══ */
+(function(){
+  var params=new URLSearchParams(window.location.search);
+  var tx=parseInt(params.get('x')),ty=parseInt(params.get('y'));
+  if(!isNaN(tx)&&!isNaN(ty)){
+    setTimeout(function(){
+      viewScale=4;
+      viewX=canvas.width/2-tx*cellSize*viewScale;
+      viewY=canvas.height/2-ty*cellSize*viewScale;
+      renderGrid();
+    },500);
   }
+})();
+
+function screenToWorld(sx,sy){
+  return{x:(sx-viewX)/viewScale/cellSize,y:(sy-viewY)/viewScale/cellSize};
+}
+function getCanvasPos(e){
+  var r=canvas.getBoundingClientRect();
+  return{x:e.clientX-r.left,y:e.clientY-r.top};
 }
 
-// Mouse koordinati
-function getGridPos(e) {
-  const rect = canvas.getBoundingClientRect();
-  const x = Math.floor((e.clientX - rect.left) / cellSize);
-  const y = Math.floor((e.clientY - rect.top) / cellSize);
-  return {x: Math.max(0, Math.min(GRID-1, x)), y: Math.max(0, Math.min(GRID-1, y))};
-}
+/* ─── Mouse ─── */
+canvas.addEventListener('mousedown',function(e){
+  if(archiveMode)return;
+  var sp=getCanvasPos(e),wp=screenToWorld(sp.x,sp.y);
+  var gx=Math.floor(wp.x),gy=Math.floor(wp.y);
+  if(gx>=0&&gx<GRID&&gy>=0&&gy<GRID)placePixel(gx,gy);
+});
+canvas.addEventListener('wheel',function(e){
+  e.preventDefault();
+  var sp=getCanvasPos(e),f=e.deltaY<0?1.2:0.8;
+  var ns=Math.max(.3,Math.min(10,viewScale*f));
+  viewX=sp.x-(sp.x-viewX)*(ns/viewScale);
+  viewY=sp.y-(sp.y-viewY)*(ns/viewScale);
+  viewScale=ns;renderGrid();
+},{passive:false});
 
-// Hover efekti
-canvas.addEventListener('mousemove', function(e) {
-  const pos = getGridPos(e);
-  document.getElementById('coordInfo').textContent = pos.x + ', ' + pos.y;
-
-  // Boyama (sürüklerken)
-  if (e.buttons === 1 && !isDragging) {
-    placePixel(pos.x, pos.y);
+/* ─── Touch ─── */
+canvas.addEventListener('touchstart',function(e){
+  e.preventDefault();
+  if(e.touches.length===2){
+    isPinching=true;isPanning=false;
+    var dx=e.touches[0].clientX-e.touches[1].clientX;
+    var dy=e.touches[0].clientY-e.touches[1].clientY;
+    pinchStartDist=Math.sqrt(dx*dx+dy*dy);pinchStartScale=viewScale;return;
   }
-});
-
-// Tıklama
-canvas.addEventListener('mousedown', function(e) {
-  if (e.button === 0) {
-    const pos = getGridPos(e);
-    placePixel(pos.x, pos.y);
-  }
-});
-
-// Sag tikla → surukleme ile kaydirma
-canvas.addEventListener('contextmenu', e => e.preventDefault());
-
-// Orta tikla surukleme
-area.addEventListener('mousedown', function(e) {
-  if (e.button === 1 || (e.button === 0 && e.shiftKey)) {
-    isDragging = true;
-    hasDragged = false;
-    dragStart = {x: e.clientX, y: e.clientY};
-    scrollStart = {x: area.scrollLeft, y: area.scrollTop};
-    area.classList.add('dragging');
-    e.preventDefault();
-  }
-});
-
-area.addEventListener('mousemove', function(e) {
-  if (isDragging) {
-    area.scrollLeft = scrollStart.x - (e.clientX - dragStart.x);
-    area.scrollTop = scrollStart.y - (e.clientY - dragStart.y);
-    hasDragged = true;
-  }
-});
-
-area.addEventListener('mouseup', function() {
-  isDragging = false;
-  area.classList.remove('dragging');
-});
-
-// Piksel yerlestir/sil
-async function placePixel(x, y) {
-  const key = x + ',' + y;
-  const existing = pixels[key];
-
-  const payload = {x, y, color: isEraser ? '#000000' : selectedColor};
-
-  const res = await fetch('/pikpik/place', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify(payload)
-  });
-  const data = await res.json();
-
-  if (data.ok) {
-    pikBalance = data.balance;
-    document.getElementById('pikBal').textContent = pikBalance;
-    if (data.action === 'placed') {
-      showToast('−1◆ piksel yerleştirildi', 'ok');
-    } else {
-      showToast('+1◆ piksel iade', 'ok');
+  if(e.touches.length!==1)return;
+  var t=e.touches[0],sp=getCanvasPos(t),now=Date.now();
+  if(!archiveMode&&now-lastTapTime<350&&lastTapPos){
+    var ddx=sp.x-lastTapPos.x,ddy=sp.y-lastTapPos.y;
+    if(Math.sqrt(ddx*ddx+ddy*ddy)<30){
+      var wp=screenToWorld(sp.x,sp.y),gx=Math.floor(wp.x),gy=Math.floor(wp.y);
+      if(gx>=0&&gx<GRID&&gy>=0&&gy<GRID)placePixel(gx,gy);
+      lastTapTime=0;return;
     }
-    await loadPixels();
-  } else {
-    showToast(data.error || 'Hata', 'err');
   }
+  lastTapTime=now;lastTapPos=sp;
+  isPanning=true;panStart={x:sp.x,y:sp.y,vx:viewX,vy:viewY};
+},{passive:false});
+canvas.addEventListener('touchmove',function(e){
+  e.preventDefault();
+  if(isPinching&&e.touches.length===2){
+    var dx=e.touches[0].clientX-e.touches[1].clientX;
+    var dy=e.touches[0].clientY-e.touches[1].clientY;
+    var dist=Math.sqrt(dx*dx+dy*dy);
+    var ns=Math.max(.3,Math.min(10,pinchStartScale*(dist/pinchStartDist)));
+    var cx=(e.touches[0].clientX+e.touches[1].clientX)/2;
+    var cy=(e.touches[0].clientY+e.touches[1].clientY)/2;
+    var r=canvas.getBoundingClientRect(),mx=cx-r.left,my=cy-r.top;
+    viewX=mx-(mx-viewX)*(ns/viewScale);
+    viewY=my-(my-viewY)*(ns/viewScale);
+    viewScale=ns;renderGrid();return;
+  }
+  if(e.touches.length!==1||!isPanning)return;
+  var t=e.touches[0],sp=getCanvasPos(t);
+  viewX=panStart.vx+(sp.x-panStart.x);
+  viewY=panStart.vy+(sp.y-panStart.y);
+  renderGrid();
+},{passive:false});
+canvas.addEventListener('touchend',function(){
+  if(isPinching){isPinching=false;return;}
+  isPanning=false;panStart=null;
+});
+
+/* ─── Piksel yerleştir ─── */
+async function placePixel(x,y){
+  if(archiveMode){showToast('Arşiv modunda değişiklik yapılamaz','err');return;}
+  try{
+    var res=await fetch('/pikpik/place',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({x,y,color:isEraser?'#000000':selectedColor})
+    });
+    var data=await res.json();
+    if(data.ok){
+      updateBalance(data.balance);
+      showToast(data.action==='placed'?'−1◆':'+1◆ iade','ok');
+      await loadPixels();
+    }else showToast(data.error||'Hata','err');
+  }catch(e){showToast('Bağlantı hatası','err');}
 }
 
-// Toast
-function showToast(msg, type) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast show ' + type;
-  setTimeout(() => { t.className = 'toast'; }, 2000);
-}
-
-// Klavye kisayollari
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'e' || e.key === 'E') {
-    isEraser = true;
-    document.querySelectorAll('.cs').forEach(s => s.classList.remove('active'));
-    eraser.classList.add('active');
-  }
-  if (e.key === '+' || e.key === '=') zoomIn();
-  if (e.key === '-') zoomOut();
-  if (e.key === 'Escape') {
-    isEraser = false;
-    document.querySelectorAll('.cs').forEach(s => s.classList.remove('active'));
-    palette.querySelectorAll('.cs:not(.cs-eraser)')[2].classList.add('active');
+canvas.addEventListener('mousemove',function(e){
+  var sp=getCanvasPos(e),wp=screenToWorld(sp.x,sp.y);
+  document.getElementById('coordInfo').textContent=Math.floor(wp.x)+', '+Math.floor(wp.y);
+});
+document.addEventListener('keydown',function(e){
+  if(e.key==='e'||e.key==='E'){
+    isEraser=true;
+    document.querySelectorAll('.cs').forEach(function(s){s.classList.remove('active');});
+    document.querySelectorAll('.cs-eraser').forEach(function(s){s.classList.add('active');});
   }
 });
 
-// Periyodik guncelleme
-setInterval(loadPixels, 5000);
+/* ══════ HAFTA & GERİ SAYIM ══════ */
+var resetTime=null,countdownInterval=null;
 
-// Ilk yukleme
-resizeCanvas();
+async function loadSchedule(){
+  try{
+    var res=await fetch('/pikpik/schedule');
+    var data=await res.json();
+    if(data.week_start){
+      document.getElementById('weekStartLabel').textContent=data.week_start;
+    }
+    if(data.next_reset){
+      resetTime=new Date(data.next_reset.replace(' ','T'));
+      startCountdown();
+    }
+    if(data.week_start&&data.week_end){
+      document.getElementById('weekEndLabel').textContent=data.week_end;
+      document.getElementById('wkDateRange').textContent=data.week_start+' → '+data.week_end;
+    }
+  }catch(e){console.error(e);}
+}
+function startCountdown(){
+  if(countdownInterval)clearInterval(countdownInterval);
+  updateCountdown();countdownInterval=setInterval(updateCountdown,1000);
+}
+function updateCountdown(){
+  if(!resetTime)return;
+  var diff=resetTime-new Date();
+  var tEl=document.getElementById('resetTimer');
+  var tElF=document.getElementById('resetTimerFull');
+  if(diff<=0){
+    tEl.textContent='Sıfırlanıyor...';
+    if(tElF)tElF.textContent='Sıfırlanıyor...';
+    setTimeout(function(){loadSchedule();loadPixels();showToast('Tuval sıfırlandı!','ok');},3000);
+    clearInterval(countdownInterval);return;
+  }
+  var d=Math.floor(diff/864e5),h=Math.floor(diff%864e5/36e5);
+  var m=Math.floor(diff%36e5/6e4),s=Math.floor(diff%6e4/1e3);
+  var str='';
+  if(d>0)str+=d+'g ';
+  str+=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  tEl.textContent=str;
+  if(tElF)tElF.textContent=str;
+}
+
+/* ══════ ARŞİV SİSTEMİ ══════ */
+function openArchivePanel(){
+  document.getElementById('archivePanel').classList.add('open');
+  loadArchiveList();
+}
+function closeArchivePanel(){
+  document.getElementById('archivePanel').classList.remove('open');
+}
+async function loadArchiveList(){
+  var el=document.getElementById('archiveList');
+  el.innerHTML='<div class="archive-empty">Yükleniyor...</div>';
+  try{
+    var res=await fetch('/pikpik/archives');
+    var archives=await res.json();
+    if(!archives.length){el.innerHTML='<div class="archive-empty">Henüz arşiv yok.</div>';return;}
+    el.innerHTML='';
+    archives.forEach(function(a,idx){
+      var item=document.createElement('div');item.className='archive-item';
+      item.innerHTML='<span class="ai-icon">📅</span>'+
+        '<div class="ai-info"><div class="ai-week">Hafta '+(archives.length-idx)+'</div>'+
+        '<div class="ai-date">'+a.week_start+' → '+a.week_end+'</div></div>'+
+        '<span class="ai-arrow">→</span>';
+      item.onclick=function(){closeArchivePanel();enterArchiveMode(a.id,a.week_start,a.week_end);};
+      el.appendChild(item);
+    });
+  }catch(e){el.innerHTML='<div class="archive-empty">Hata oluştu.</div>';}
+}
+async function enterArchiveMode(id,ws,we){
+  archiveMode=true;currentArchiveId=id;
+  canvas.style.cursor='default';
+  var b=document.getElementById('archiveBanner');
+  b.classList.remove('hidden');
+  document.getElementById('archiveBannerTitle').textContent='Arşiv';
+  document.getElementById('archiveBannerPeriod').textContent=ws+' → '+we;
+  document.getElementById('pikWeek').style.display='none';
+  positionToolbar();positionCanvas();
+  try{
+    var res=await fetch('/pikpik/archive/'+id);
+    var data=await res.json();
+    pixels={};
+    if(data.pixels)data.pixels.forEach(function(p){pixels[p.x+','+p.y]={x:p.x,y:p.y,color:p.color,username:'archive',user_id:p.user_id};});
+    renderGrid();showToast('Arşiv — salt okunur','ok');
+  }catch(e){showToast('Arşiv yüklenemedi','err');}
+}
+function exitArchiveMode(){
+  archiveMode=false;currentArchiveId=null;
+  canvas.style.cursor='crosshair';
+  document.getElementById('archiveBanner').classList.add('hidden');
+  document.getElementById('pikWeek').style.display='';
+  positionToolbar();positionCanvas();loadPixels();showToast('Bu haftaya dönüldü','ok');
+}
+
+/* ══════ BAŞLANGIÇ ══════ */
+window.addEventListener('resize',function(){positionToolbar();positionCanvas();});
+positionToolbar();
+positionCanvas();
 loadPixels();
-
-// Baslangic scroll ortala
-setTimeout(() => {
-  area.scrollLeft = (canvas.width - area.clientWidth) / 2;
-  area.scrollTop = (canvas.height - area.clientHeight) / 2;
-}, 100);
+loadSchedule();
+setTimeout(function(){
+  var fw=canvas.width/(GRID*cellSize),fh=canvas.height/(GRID*cellSize);
+  viewScale=Math.max(fw,fh);
+  viewX=(canvas.width-GRID*cellSize*viewScale)/2;
+  viewY=(canvas.height-GRID*cellSize*viewScale)/2;
+  renderGrid();
+},150);
+setInterval(function(){if(!archiveMode)loadPixels();},5000);
 </script>
 {% endblock %}

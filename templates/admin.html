@@ -1,26 +1,39 @@
 {% extends 'base.html' %}
-{% block title %}Admin Paneli — Meydan{% endblock %}
+{% block title %}Admin Paneli — Tezİskelesi{% endblock %}
 {% block extra_css %}
 <style>
 .wrap{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:36px 20px 80px;}
 .page-title{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;letter-spacing:-1px;margin-bottom:6px;}
 .page-sub{font-size:12px;color:var(--text-muted);margin-bottom:32px;}
+
 .tabs{display:flex;gap:4px;margin-bottom:24px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:4px;flex-wrap:wrap;}
 .tab-btn{flex:1;padding:9px 12px;border-radius:8px;border:none;background:none;font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;color:var(--text-muted);transition:all .2s;letter-spacing:1px;white-space:nowrap;}
 .tab-btn.active{background:var(--accent);color:#fff;}
 .tab-btn:hover:not(.active){background:var(--surface-2);color:var(--text-primary);}
 .tab-content{display:none;}
 .tab-content.active{display:block;}
+
+.stats-row{display:flex;gap:14px;margin-bottom:28px;flex-wrap:wrap;}
+.stat-box{flex:1;min-width:100px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;}
+.stat-box-n{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;}
+.stat-box-n.y{color:var(--yellow);}
+.stat-box-n.g{color:var(--green);}
+.stat-box-n.p{color:var(--accent);}
+.stat-box-n.r{color:var(--red);}
+.stat-box-l{font-size:10px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;margin-top:4px;}
+
 .section{margin-bottom:28px;}
 .section-title{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
 .badge{background:var(--red-bg);border:1px solid var(--red-border);color:var(--red);border-radius:20px;font-size:10px;padding:1px 8px;}
 .badge.green{background:var(--green-bg);border-color:var(--green-border);color:var(--green);}
+
 .item-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:8px;display:flex;align-items:center;gap:14px;transition:border-color .2s;}
 .item-card:hover{border-color:var(--accent);}
 .item-main{flex:1;min-width:0;}
 .item-name{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .item-meta{font-size:10px;color:var(--text-dim);margin-top:3px;}
 .item-actions{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;}
+
 .btn{padding:6px 14px;border-radius:7px;border:1px solid var(--border);font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;background:transparent;color:var(--text-muted);transition:all .2s;letter-spacing:.5px;}
 .btn:hover{border-color:var(--text-muted);color:var(--text-primary);}
 .btn-green{border-color:var(--green-border);color:var(--green);background:var(--green-bg);}
@@ -29,23 +42,22 @@
 .btn-red:hover{background:var(--red);color:#fff;}
 .btn-yellow{border-color:var(--yellow-border);color:var(--yellow);background:var(--yellow-bg);}
 .btn-yellow:hover{background:var(--yellow);color:#000;}
+
 .role-badge{font-size:9px;padding:2px 8px;border-radius:4px;letter-spacing:1px;text-transform:uppercase;display:inline-block;margin-left:6px;}
 .role-badge.admin{background:rgba(139,92,246,.15);color:var(--accent);border:1px solid rgba(139,92,246,.3);}
 .role-badge.banned{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);}
-.stats-row{display:flex;gap:14px;margin-bottom:28px;flex-wrap:wrap;}
-.stat-box{flex:1;min-width:120px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;}
-.stat-box-n{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;}
-.stat-box-n.y{color:var(--yellow);}
-.stat-box-n.g{color:var(--green);}
-.stat-box-n.p{color:var(--accent);}
-.stat-box-l{font-size:10px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;margin-top:4px;}
 .status-pill{font-size:9px;padding:2px 8px;border-radius:4px;letter-spacing:1px;text-transform:uppercase;}
 .status-pill.pending{background:rgba(241,196,15,.15);color:var(--yellow);border:1px solid rgba(241,196,15,.3);}
 .status-pill.approved{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);}
 .status-pill.rejected{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);}
-.empty-state{text-align:center;padding:40px;color:var(--text-dim);font-size:12px;}
 
-/* Site Content */
+.hk-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:8px;display:flex;align-items:center;gap:12px;transition:border-color .2s;}
+.hk-card:hover{border-color:var(--accent);}
+.hk-preview{font-family:'Syne',sans-serif;font-weight:700;line-height:1.2;max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+.pk-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:8px;display:flex;align-items:center;gap:12px;transition:border-color .2s;}
+.pk-card:hover{border-color:var(--accent);}
+
 .sc-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin-bottom:12px;}
 .sc-title{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;margin-bottom:4px;}
 .sc-key{font-size:9px;color:var(--text-dim);letter-spacing:1px;margin-bottom:10px;}
@@ -55,7 +67,6 @@
 .sc-form textarea{min-height:120px;resize:vertical;line-height:1.7;}
 .sc-actions{display:flex;gap:6px;margin-top:10px;}
 
-/* Log */
 .log-table{width:100%;border-collapse:collapse;font-size:12px;}
 .log-table th{text-align:left;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);padding:10px 12px;border-bottom:1px solid var(--border);font-weight:500;}
 .log-table td{padding:10px 12px;border-bottom:1px solid rgba(42,46,56,.4);color:var(--text-primary);vertical-align:top;}
@@ -68,14 +79,22 @@
 .log-action-badge.login,.log-action-badge.new_reply,.log-action-badge.approve_topic,.log-action-badge.unban_user{background:rgba(46,204,113,.12);color:var(--green);border:1px solid rgba(46,204,113,.3);}
 .log-action-badge.logout{background:rgba(107,111,122,.12);color:var(--text-muted);border:1px solid var(--border);}
 .log-action-badge.new_topic,.log-action-badge.register,.log-action-badge.forgot_password,.log-action-badge.edit_site_content{background:rgba(139,92,246,.12);color:var(--accent);border:1px solid rgba(139,92,246,.3);}
-.log-action-badge.reject_topic,.log-action-badge.delete_topic,.log-action-badge.delete_node,.log-action-badge.ban_user,.log-action-badge.delete_user{background:rgba(231,76,60,.12);color:var(--red);border:1px solid rgba(231,76,60,.3);}
+.log-action-badge.reject_topic,.log-action-badge.delete_topic,.log-action-badge.delete_node,.log-action-badge.ban_user,.log-action-badge.delete_user,.log-action-badge.delete_haykir,.log-action-badge.delete_pik,.log-action-badge.clear_pikpik{background:rgba(231,76,60,.12);color:var(--red);border:1px solid rgba(231,76,60,.3);}
 .log-action-badge.edit_node{background:rgba(241,196,15,.12);color:var(--yellow);border:1px solid rgba(241,196,15,.3);}
 .log-search{margin-bottom:16px;}
 .log-search input{width:100%;max-width:360px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 16px;color:var(--text-primary);font-family:'DM Mono',monospace;font-size:12px;outline:none;transition:border-color .2s;}
 .log-search input:focus{border-color:var(--accent);}
 .log-search input::placeholder{color:var(--text-dim);}
 
-@media(max-width:700px){.item-card{flex-direction:column;align-items:flex-start;}.item-actions{width:100%;}.stats-row{gap:8px;}.stat-box{padding:12px;}.stat-box-n{font-size:22px;}}
+.empty-state{text-align:center;padding:40px;color:var(--text-dim);font-size:12px;}
+
+@media(max-width:700px){
+  .item-card,.hk-card,.pk-card{flex-direction:column;align-items:flex-start;}
+  .item-actions{width:100%;}
+  .stats-row{gap:8px;}
+  .stat-box{padding:12px;}
+  .stat-box-n{font-size:22px;}
+}
 </style>
 {% endblock %}
 {% block content %}
@@ -93,24 +112,31 @@
     <div class="stat-box"><div class="stat-box-n p">{{ users|length }}</div><div class="stat-box-l">Kullanıcı</div></div>
     <div class="stat-box"><div class="stat-box-n g">{{ approved_list|length }}</div><div class="stat-box-l">Onaylı Tartışma</div></div>
     <div class="stat-box"><div class="stat-box-n y">{{ pending_list|length }}</div><div class="stat-box-l">Onay Bekliyor</div></div>
-    <div class="stat-box"><div class="stat-box-n" style="color:var(--red);">{{ banned_list|length }}</div><div class="stat-box-l">Engelli Üye</div></div>
+    <div class="stat-box"><div class="stat-box-n r">{{ banned_list|length }}</div><div class="stat-box-l">Engelli</div></div>
+    <div class="stat-box"><div class="stat-box-n" style="color:var(--text-primary);">{{ haykir_count|default(0) }}</div><div class="stat-box-l">Haykırış</div></div>
+    <div class="stat-box"><div class="stat-box-n" style="color:var(--text-primary);">{{ pik_count|default(0) }}</div><div class="stat-box-l">Pik</div></div>
   </div>
 
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('pending',this)">⏳ Bekleyenler</button>
     <button class="tab-btn" onclick="switchTab('topics',this)">📋 Tartışmalar</button>
+    <button class="tab-btn" onclick="switchTab('haykir',this)">🔊 Haykırışlar</button>
+    <button class="tab-btn" onclick="switchTab('pikpik',this)">◆ PikPik</button>
     <button class="tab-btn" onclick="switchTab('users',this)">👥 Kullanıcılar</button>
-    <button class="tab-btn" onclick="switchTab('site',this)">📝 Hakkında İçerik</button>
+    <button class="tab-btn" onclick="switchTab('site',this)">📝 İçerik</button>
     <button class="tab-btn" onclick="switchTab('log',this)">📜 Günlük</button>
   </div>
 
-  {# ═══ Bekleyenler ═══ #}
+  {# ═══ 1. BEKLEYENLER ═══ #}
   <div class="tab-content active" id="tab-pending">
     <div class="section">
       <div class="section-title">Onay Bekleyen Tartışmalar {% if pending|length > 0 %}<span class="badge">{{ pending|length }}</span>{% endif %}</div>
       {% if pending %}{% for t in pending %}
       <div class="item-card">
-        <div class="item-main"><div class="item-name">{{ t.title }}</div><div class="item-meta">@{{ t.username }} · {{ t.created_at[:16] }}</div></div>
+        <div class="item-main">
+          <div class="item-name">{{ t.title }}</div>
+          <div class="item-meta">@{{ t.username }} · {{ t.created_at[:16] }}</div>
+        </div>
         <div class="item-actions">
           <a href="/topic/{{ t.id }}" class="btn" style="text-decoration:none;" target="_blank">Önizle</a>
           <form method="POST" action="/admin/topic/{{ t.id }}/approve" style="display:inline"><button type="submit" class="btn btn-green">✓ Onayla</button></form>
@@ -121,13 +147,16 @@
     </div>
   </div>
 
-  {# ═══ Tüm Tartışmalar ═══ #}
+  {# ═══ 2. TÜM TARTIŞMALAR ═══ #}
   <div class="tab-content" id="tab-topics">
     <div class="section">
       <div class="section-title">Tüm Tartışmalar <span class="badge green">{{ all_topics|length }}</span></div>
       {% for t in all_topics %}
       <div class="item-card">
-        <div class="item-main"><div class="item-name"><span class="status-pill {{ t.status }}">{{ t.status }}</span> {{ t.title }}</div><div class="item-meta">@{{ t.username }} · {{ t.created_at[:16] }}</div></div>
+        <div class="item-main">
+          <div class="item-name"><span class="status-pill {{ t.status }}">{{ t.status }}</span> {{ t.title }}</div>
+          <div class="item-meta">@{{ t.username }} · {{ t.created_at[:16] }} · {{ t.cunku_count|default(0) }} Zira · {{ t.fakat_count|default(0) }} Gelgelelim · {{ t.lakin_count|default(0) }} Yalnız</div>
+        </div>
         <div class="item-actions">
           <a href="/topic/{{ t.id }}" class="btn" style="text-decoration:none;" target="_blank">Gör</a>
           {% if t.status == 'pending' %}
@@ -145,14 +174,72 @@
     </div>
   </div>
 
-  {# ═══ Kullanıcılar ═══ #}
+  {# ═══ 3. HAYKIRIŞLAR ═══ #}
+  <div class="tab-content" id="tab-haykir">
+    <div class="section">
+      <div class="section-title">Tüm Haykırışlar <span class="badge green">{{ haykir_entries|default([])|length }}</span></div>
+      {% if haykir_entries %}
+        {% for h in haykir_entries %}
+        <div class="hk-card">
+          <div class="item-main">
+            <div class="hk-preview" style="font-size:{{ [h.font_size, 24]|min }}px;color:{{ h.color }};">{{ h.content }}</div>
+            <div class="item-meta">@{{ h.username }} · {{ h.day }} · {{ h.font_size }}px · {{ h.font_family }} · Efekt: {{ h.effect }} · Gölge: {{ h.shadow }}</div>
+          </div>
+          <div class="item-actions">
+            <form method="POST" action="/admin/haykir/{{ h.id }}/delete" style="display:inline" onsubmit="return confirm('Bu haykırış silinsin mi?')">
+              <button type="submit" class="btn btn-red">🗑 Sil</button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state">Henüz haykırış yok.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  {# ═══ 4. PIKPIK ═══ #}
+  <div class="tab-content" id="tab-pikpik">
+    <div class="section">
+      <div class="section-title">PikPik Pikselleri <span class="badge green">{{ pik_entries|default([])|length }}</span></div>
+      <div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap;">
+        <form method="POST" action="/admin/pikpik/clear" onsubmit="return confirm('TÜM pikseller sıfırlanacak! Emin misin?')">
+          <button type="submit" class="btn btn-red">🧨 Tüm Pikselleri Sıfırla</button>
+        </form>
+      </div>
+      {% if pik_entries %}
+        {% for p in pik_entries %}
+        <div class="pk-card">
+          <div style="width:24px;height:24px;border-radius:4px;background:{{ p.color }};border:1px solid var(--border);flex-shrink:0;"></div>
+          <div class="item-main">
+            <div class="item-name" style="font-size:13px;">({{ p.x }}, {{ p.y }})</div>
+            <div class="item-meta">@{{ p.username }} · Renk: {{ p.color }}</div>
+          </div>
+          <div class="item-actions">
+            <form method="POST" action="/admin/pikpik/{{ p.id }}/delete" style="display:inline" onsubmit="return confirm('Bu piksel silinsin mi?')">
+              <button type="submit" class="btn btn-red">🗑 Sil</button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state">Henüz piksel yok.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  {# ═══ 5. KULLANICILAR ═══ #}
   <div class="tab-content" id="tab-users">
     <div class="section">
       <div class="section-title">Kullanıcılar <span class="badge green">{{ users|length }}</span></div>
       {% for u in users %}
       <div class="item-card">
         <div class="item-main">
-          <div class="item-name"><a href="/profile/{{ u.username }}" style="color:inherit;text-decoration:none;">@{{ u.username }}</a>{% if u.is_admin %}<span class="role-badge admin">Admin</span>{% endif %}{% if u.is_banned %}<span class="role-badge banned">Engelli</span>{% endif %}</div>
+          <div class="item-name">
+            <a href="/profile/{{ u.username }}" style="color:inherit;text-decoration:none;">@{{ u.username }}</a>
+            {% if u.is_admin %}<span class="role-badge admin">Admin</span>{% endif %}
+            {% if u.is_banned %}<span class="role-badge banned">Engelli</span>{% endif %}
+          </div>
           <div class="item-meta">{{ u.email or 'E-posta yok' }} · Kayıt: {{ u.created_at[:16] }}</div>
         </div>
         <div class="item-actions">
@@ -162,15 +249,19 @@
             {% else %}
               <form method="POST" action="/admin/user/{{ u.id }}/ban" style="display:inline" onsubmit="return confirm('@{{ u.username }} engellensin mi?')"><button type="submit" class="btn btn-yellow">Engelle</button></form>
             {% endif %}
-            <form method="POST" action="/admin/user/{{ u.id }}/delete" style="display:inline" onsubmit="return confirm('@{{ u.username }} silinsin mi?')"><button type="submit" class="btn btn-red">Sil</button></form>
-          {% else %}<span style="font-size:11px;color:var(--text-dim);">Korumalı</span>{% endif %}
+            <form method="POST" action="/admin/user/{{ u.id }}/delete" style="display:inline" onsubmit="return confirm('@{{ u.username }} ve tüm içerikleri silinsin mi?')">
+              <button type="submit" class="btn btn-red">Sil</button>
+            </form>
+          {% else %}
+            <span style="font-size:11px;color:var(--text-dim);">Korumalı</span>
+          {% endif %}
         </div>
       </div>
       {% endfor %}
     </div>
   </div>
 
-  {# ═══ Site Content (Hakkında) ═══ #}
+  {# ═══ 6. İÇERİK (HAKKINDA SAYFASI) ═══ #}
   <div class="tab-content" id="tab-site">
     <div class="section">
       <div class="section-title">Hakkında Sayfası İçerikleri <span class="badge green">{{ site_items|length }}</span></div>
@@ -211,7 +302,7 @@
     </div>
   </div>
 
-  {# ═══ İşlem Günlüğü ═══ #}
+  {# ═══ 7. GÜNLÜK ═══ #}
   <div class="tab-content" id="tab-log">
     <div class="section">
       <div class="section-title">İşlem Günlüğü <span class="badge green">{{ activity|length }} kayıt</span></div>
@@ -222,7 +313,12 @@
           <thead><tr><th>Zaman</th><th>Kullanıcı</th><th>İşlem</th><th>Detay</th></tr></thead>
           <tbody>
             {% for a in activity %}
-            <tr class="log-row"><td class="log-time">{{ a.created_at[:19] }}</td><td class="log-user">@{{ a.username or '—' }}</td><td><span class="log-action-badge {{ a.action }}">{{ a.action }}</span></td><td class="log-detail">{{ a.detail or '' }}</td></tr>
+            <tr class="log-row">
+              <td class="log-time">{{ a.created_at[:19] }}</td>
+              <td class="log-user">@{{ a.username or '—' }}</td>
+              <td><span class="log-action-badge {{ a.action }}">{{ a.action }}</span></td>
+              <td class="log-detail">{{ a.detail or '' }}</td>
+            </tr>
             {% endfor %}
           </tbody>
         </table>
@@ -233,7 +329,17 @@
 </div>
 
 <script>
-function switchTab(name,btn){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.getElementById('tab-'+name).classList.add('active');btn.classList.add('active');}
-function filterLog(){const q=document.getElementById('logSearch').value.toLowerCase();document.querySelectorAll('.log-row').forEach(row=>{row.style.display=row.textContent.toLowerCase().includes(q)?'':'none';});}
+function switchTab(name,btn){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+function filterLog(){
+  const q=document.getElementById('logSearch').value.toLowerCase();
+  document.querySelectorAll('.log-row').forEach(row=>{
+    row.style.display=row.textContent.toLowerCase().includes(q)?'':'none';
+  });
+}
 </script>
 {% endblock %}
